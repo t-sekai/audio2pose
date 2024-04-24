@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tsc003-cache-speaker-21
+  namespace: cyberarch
+
+spec:
+  containers:
+    - name: work-container
+      image: tsekai/a2bs_withpip:latest # docker image
+      # imagePullPolicy: Always
+      command:
+            - bash
+            - -c
+            - |
+              source /usr/local/bin/_activate_current_env.sh
+              cd /data
+              mkdir /data/audio2pose
+              mkdir /data/audio2pose/codes
+              mkdir /data/audio2pose/datasets
+              mkdir /data/audio2pose/outputs
+              cp -r /tsc003-beat-vol/audio2pose/codes/audio2pose/ /data/audio2pose/codes
+              echo "copied audio2pose codes"
+              mkdir /data/audio2pose/datasets/beat_cache
+              mkdir /data/audio2pose/datasets/beat_english_v0.2.1
+              echo "copying dataset"
+              cp -r /tsc003-beat-vol/audio2pose/datasets/beat_english_v0.2.1/21/ /data/audio2pose/datasets/beat_english_v0.2.1
+              echo "done copying dataset"
+              mkdir /data/audio2pose/outputs/audio2pose
+              mkdir /data/audio2pose/outputs/audio2pose/custom
+              mkdir /data/audio2pose/outputs/audio2pose/wandb
+              python /data/audio2pose/codes/audio2pose/dataloaders/preprocessing1.py 21
+              echo "copying cache"
+              cp -r /data/audio2pose/datasets/beat_cache/beat_4english_15_141/ /tsc003-beat-vol/audio2pose/datasets/beat_cache/
+              echo "done copying cache"
+      resources:
+        requests:
+          cpu: "10"
+          memory: "20Gi"
+          ephemeral-storage: 50Gi
+          # nvidia.com/gpu: "1"
+
+        limits:
+          cpu: "10"
+          memory: "20Gi"
+          ephemeral-storage: 50Gi
+          # nvidia.com/gpu: "1"
+      volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: tsc003-beat-vol
+          mountPath: /tsc003-beat-vol
+  volumes:
+    - name: data
+      emptyDir: {}
+    - name: tsc003-beat-vol
+      persistentVolumeClaim:
+        claimName: tsc003-beat-vol
+  nodeSelector:
+    nautilus.io/disktype: nvme
+  restartPolicy: Never
+  # affinity:
+  #   nodeAffinity:
+  #     requiredDuringSchedulingIgnoredDuringExecution:
+  #       nodeSelectorTerms:
+  #         - matchExpressions:
+  #           - key: nvidia.com/gpu.product
+  #             operator: In
+  #             values:
+  #               - NVIDIA-GeForce-GTX-1080-Ti

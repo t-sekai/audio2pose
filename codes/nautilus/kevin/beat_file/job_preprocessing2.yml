@@ -1,0 +1,55 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: tsc003-cache-preprocessing2
+  namespace: cyberarch
+
+spec:
+  template:
+    spec:
+      containers:
+        - name: work-container
+          image: tsekai/a2bs_withpip:latest # docker image
+          # imagePullPolicy: Always
+          command:
+                - bash
+                - -c
+                - |
+                  source /usr/local/bin/_activate_current_env.sh
+                  python /tsc003-beat-vol/audio2pose/codes/audio2pose/dataloaders/preprocessing2.py
+                  echo "done preprocessing2"
+          resources:
+            requests:
+              cpu: "10"
+              memory: "20Gi"
+              ephemeral-storage: 50Gi
+              # nvidia.com/gpu: "1"
+
+            limits:
+              cpu: "10"
+              memory: "20Gi"
+              ephemeral-storage: 50Gi
+              # nvidia.com/gpu: "1"
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tsc003-beat-vol
+              mountPath: /tsc003-beat-vol
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: tsc003-beat-vol
+          persistentVolumeClaim:
+            claimName: tsc003-beat-vol
+      nodeSelector:
+        nautilus.io/disktype: nvme
+      restartPolicy: Never
+  # affinity:
+  #   nodeAffinity:
+  #     requiredDuringSchedulingIgnoredDuringExecution:
+  #       nodeSelectorTerms:
+  #         - matchExpressions:
+  #           - key: nvidia.com/gpu.product
+  #             operator: In
+  #             values:
+  #               - NVIDIA-GeForce-GTX-1080-Ti

@@ -399,7 +399,7 @@ class CustomDataset(Dataset):
                         normalized_pose = self.normalize_pose(pose, self.mean_pose, self.std_pose)
                         k = "{:005}".format(self.n_out_samples).encode("ascii")
                         v = [normalized_pose, audio, facial, word, emo, sem, vid]
-                        v = pyarrow.serialize(v).to_buffer()
+                        v = pickle.dumps(v)
                         txn.put(k, v)
                         self.n_out_samples += 1
         return n_filtered_out
@@ -412,7 +412,7 @@ class CustomDataset(Dataset):
         with self.lmdb_env.begin(write=False) as txn:
             key = "{:005}".format(idx).encode("ascii")
             sample = txn.get(key)
-            sample = pyarrow.deserialize(sample)
+            sample = pickle.loads(sample)
             tar_pose, in_audio, in_facial, in_word, emo, sem, vid = sample
             vid = torch.from_numpy(vid).int()
             emo = torch.from_numpy(emo).int()

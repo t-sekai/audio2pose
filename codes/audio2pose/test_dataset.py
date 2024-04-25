@@ -13,4 +13,4 @@ train_loader = torch.utils.data.DataLoader(
 )
 
 data = next(iter(train_loader))
-print(data["audio"])
+print(data)

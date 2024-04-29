@@ -14,11 +14,11 @@ from loguru import logger
 from collections import defaultdict
 from torch.utils.data import Dataset
 import torch.distributed as dist
-import pyarrow
+#import pyarrow
 from sklearn.preprocessing import normalize
 # import librosa 
-import scipy.io.wavfile
-from scipy import signal
+#import scipy.io.wavfile
+#from scipy import signal
 from .build_vocab import Vocab
 
 

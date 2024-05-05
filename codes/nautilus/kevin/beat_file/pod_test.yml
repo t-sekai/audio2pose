@@ -21,33 +21,33 @@ spec:
           cpu: "10"
           memory: "20Gi"
           nvidia.com/gpu: "1"
-          ephemeral-storage: 100Gi
+          # ephemeral-storage: 100Gi
 
         limits:
           cpu: "10"
           memory: "20Gi"
           nvidia.com/gpu: "1"
-          ephemeral-storage: 100Gi
+          # ephemeral-storage: 100Gi
       volumeMounts:
-        - name: data
-          mountPath: /data
+        # - name: data
+        #   mountPath: /data
         - name: tsc003-beat-vol
           mountPath: /tsc003-beat-vol
   volumes:
-    - name: data
-      emptyDir: {}
+    # - name: data
+    #   emptyDir: {}
     - name: tsc003-beat-vol
       persistentVolumeClaim:
         claimName: tsc003-beat-vol
-  nodeSelector:
-    nautilus.io/disktype: nvme
+  # nodeSelector:
+  #   nautilus.io/disktype: nvme
   restartPolicy: Never
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-            - key: nvidia.com/gpu.product
-              operator: In
-              values:
-                - NVIDIA-GeForce-RTX-3090
+  # affinity:
+  #   nodeAffinity:
+  #     requiredDuringSchedulingIgnoredDuringExecution:
+  #       nodeSelectorTerms:
+  #         - matchExpressions:
+  #           - key: nvidia.com/gpu.product
+  #             operator: In
+  #             values:
+  #               - NVIDIA-GeForce-RTX-3090

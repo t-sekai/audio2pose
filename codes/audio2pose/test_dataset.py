@@ -24,4 +24,4 @@ std_facial = np.load(args.root_path+args.mean_pose_path+f"{args.facial_rep}/json
 facial = facial*std_facial+mean_facial
 
 print(facial)
-print(facial.min(), facial.max())
+print(facial.min(), facial.max(), facial.std(),facial.mean())

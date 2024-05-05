@@ -146,14 +146,6 @@ class FaceGenerator(nn.Module):
 
 
         return decoder_outputs
-
-class RMSLELoss(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.mse = nn.MSELoss()
-        
-    def forward(self, pred, actual):
-        return torch.sqrt(self.mse(torch.log(pred + 1), torch.log(actual + 1)))
     
 
 if __name__ == "__main__":
@@ -173,7 +165,7 @@ if __name__ == "__main__":
 
     net = FaceGenerator().cuda()
     optimizer = torch.optim.Adam( net.parameters(), lr=1e-3)
-    loss_function = RMSLELoss()
+    loss_function = torch.nn.MSELoss()
     train_loss = []
     eval_loss = []
 

@@ -123,6 +123,10 @@ class FaceGenerator(nn.Module):
 
         audio_feat_seq = None
         audio_feat_seq = self.audio_encoder(in_audio)  # output (bs, n_frames, feat_size)
+
+        if  audio_feat_seq.shape[1] != pre_seq.shape[1]:
+            diff_length = pre_seq.shape[1] - audio_feat_seq.shape[1]
+            audio_feat_seq = torch.cat((audio_feat_seq, audio_feat_seq[:,-diff_length:, :].reshape(1,diff_length,-1)),1)
         
         in_data = torch.cat((pre_seq, audio_feat_seq), dim=-1)
         

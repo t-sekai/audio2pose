@@ -28,6 +28,8 @@ from optimizers.optim_factory import create_optimizer
 from optimizers.scheduler_factory import create_scheduler
 from optimizers.loss_factory import get_loss_func
 
+os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
+
 class BaseTrainer(object):
     def __init__(self, args):
         self.notes = args.notes
@@ -227,7 +229,7 @@ class BaseTrainer(object):
 def main_worker(rank, world_size, args):
     if not sys.warnoptions:
         warnings.simplefilter("ignore")
-    dist.init_process_group("nccl", rank=rank, world_size=world_size)
+    dist.init_process_group("gloo", rank=rank, world_size=world_size)
         
     logger_tools.set_args_and_logger(args, rank)
     other_tools.set_random_seed(args)

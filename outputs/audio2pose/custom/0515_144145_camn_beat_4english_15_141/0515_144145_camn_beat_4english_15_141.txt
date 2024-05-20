@@ -1,0 +1,616 @@
+ 05-15 14:41:56 | {'acc_weight': 0.0,
+ 'adv_weight': 0.1,
+ 'ali_weight': 0.0,
+ 'amsgrad': False,
+ 'apex': False,
+ 'aud_prob': 1.0,
+ 'audio_dims': 1,
+ 'audio_f': 128,
+ 'audio_fps': 16000,
+ 'audio_norm': False,
+ 'audio_rep': 'wave16k',
+ 'batch_size': 256,
+ 'benchmark': True,
+ 'clean_final_seconds': 0,
+ 'clean_first_seconds': 0,
+ 'config': './configs/camn_beat_4english_15_141.yaml',
+ 'csv': 'git3.csv',
+ 'cudnn_enabled': True,
+ 'd_lr_weight': 0.2,
+ 'd_name': 'ConvDiscriminator',
+ 'dataset': 'beat',
+ 'ddp': False,
+ 'decay_epochs': 9999,
+ 'decay_rate': 0.1,
+ 'deterministic': True,
+ 'disable_filtering': False,
+ 'div_reg_weight': 0.0,
+ 'dropout_prob': 0.3,
+ 'e_name': 'HalfEmbeddingNet',
+ 'e_path': '/datasets/beat_cache/beat_4english_15_141/weights/ae_300.bin',
+ 'emo_rep': 'emo',
+ 'emotion_dims': 8,
+ 'emotion_f': 8,
+ 'epochs': 100,
+ 'eval_model': 'motion_autoencoder',
+ 'fac_prob': 1.0,
+ 'facial_dims': 51,
+ 'facial_f': 32,
+ 'facial_fps': 15,
+ 'facial_norm': False,
+ 'facial_rep': 'facial52',
+ 'fid_weight': 0.0,
+ 'finger_net': 'original',
+ 'freeze_wordembed': False,
+ 'g_name': 'CaMN',
+ 'gpus': [0],
+ 'grad_norm': 200,
+ 'hidden_size': 256,
+ 'is_train': True,
+ 'kld_aud_weight': 0.0,
+ 'kld_fac_weight': 0.0,
+ 'kld_weight': 0.0,
+ 'loader_workers': 0,
+ 'log_period': 10,
+ 'lr_base': 0.00025,
+ 'lr_min': 1e-07,
+ 'lr_policy': 'step',
+ 'mean_pose_path': '/datasets/beat_cache/beat_4english_15_141/train/',
+ 'model': 'camn',
+ 'model_name_best': 'best.pth',
+ 'model_name_last': 'last.pth',
+ 'momentum': 0.8,
+ 'multi_length_training': [1.0],
+ 'n_layer': 4,
+ 'name': '0515_144145_camn_beat_4english_15_141',
+ 'nesterov': True,
+ 'new_cache': False,
+ 'no_adv_epochs': 200,
+ 'notes': '',
+ 'opt': 'adam',
+ 'opt_betas': [0.5, 0.999],
+ 'out_root_path': '/outputs/audio2pose/',
+ 'pos_prob': 1.0,
+ 'pose_dims': 141,
+ 'pose_fps': 15,
+ 'pose_length': 34,
+ 'pose_norm': True,
+ 'pose_rep': 'bvh_rot',
+ 'pose_version': 'spine_neck_141',
+ 'pre_frames': 4,
+ 'pre_type': 'zero',
+ 'pretrain': False,
+ 'project': 'audio2pose',
+ 'random_seed': 2021,
+ 'rec_aud_weight': 0.0,
+ 'rec_fac_weight': 0.0,
+ 'rec_pos_weight': 0.0,
+ 'rec_txt_weight': 0.0,
+ 'rec_weight': 500.0,
+ 'root_path': '../..',
+ 'sem_rep': 'sem',
+ 'speaker_dims': 30,
+ 'speaker_f': 8,
+ 'speaker_id': 'id',
+ 'std_pose_path': '/datasets/beat_cache/beat_4english_15_141/train/',
+ 'stride': 10,
+ 'test_ckpt': '/datasets/beat_cache/beat_4english_15_141/weights/camn.bin',
+ 'test_data_path': '/datasets/beat_cache/beat_4english_15_141/test/',
+ 'test_period': 99,
+ 'torch_hub_path': '/datasets/hub/checkpoints/',
+ 'train_data_path': '/datasets/beat_cache/beat_4english_15_141/train/',
+ 'trainer': 'camn',
+ 'txt_prob': 1.0,
+ 'use_aug': False,
+ 'vae_length': 300,
+ 'val_data_path': '/datasets/beat_cache/beat_4english_15_141/val/',
+ 'variational_encoding': False,
+ 'vel_weight': 0.0,
+ 'warmup_epochs': 0,
+ 'warmup_lr': 0.0005,
+ 'weight_decay': 0.0,
+ 'word_dims': 300,
+ 'word_f': 128,
+ 'word_index_num': 5793,
+ 'word_rep': 'text'}
+ 05-15 14:41:56 | # ------------ 0515_144145_camn_beat_4english_15_141 ----------- #
+ 05-15 14:41:56 | PyTorch version: 2.0.1+cu117
+ 05-15 14:41:56 | CUDA version: 11.7
+ 05-15 14:41:56 | 1 GPUs
+ 05-15 14:41:56 | Random Seed: 2021
+ 05-15 14:41:56 | Init test dataloader success
+ 05-15 14:41:57 | load self-pretrained checkpoints for CaMN
+ 05-15 14:42:04 | DataParallel(
+  (module): CaMN(
+    (audio_encoder): WavEncoder(
+      (feat_extractor): Sequential(
+        (0): BasicBlock(
+          (conv1): Conv1d(1, 32, kernel_size=(15,), stride=(5,), padding=(1600,))
+          (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (act1): LeakyReLU(negative_slope=0.01, inplace=True)
+          (conv2): Conv1d(32, 32, kernel_size=(15,), stride=(1,), padding=(7,))
+          (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (act2): LeakyReLU(negative_slope=0.01, inplace=True)
+          (downsample): Sequential(
+            (0): Conv1d(1, 32, kernel_size=(15,), stride=(5,), padding=(1600,))
+            (1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (1): BasicBlock(
+          (conv1): Conv1d(32, 32, kernel_size=(15,), stride=(6,))
+          (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (act1): LeakyReLU(negative_slope=0.01, inplace=True)
+          (conv2): Conv1d(32, 32, kernel_size=(15,), stride=(1,), padding=(7,))
+          (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (act2): LeakyReLU(negative_slope=0.01, inplace=True)
+          (downsample): Sequential(
+            (0): Conv1d(32, 32, kernel_size=(15,), stride=(6,))
+            (1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (2): BasicBlock(
+          (conv1): Conv1d(32, 32, kernel_size=(15,), stride=(1,), padding=(7,))
+          (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (act1): LeakyReLU(negative_slope=0.01, inplace=True)
+          (conv2): Conv1d(32, 32, kernel_size=(15,), stride=(1,), padding=(7,))
+          (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (act2): LeakyReLU(negative_slope=0.01, inplace=True)
+        )
+        (3): BasicBlock(
+          (conv1): Conv1d(32, 64, kernel_size=(15,), stride=(6,))
+          (bn1): BatchNorm1d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (act1): LeakyReLU(negative_slope=0.01, inplace=True)
+          (conv2): Conv1d(64, 64, kernel_size=(15,), stride=(1,), padding=(7,))
+          (bn2): BatchNorm1d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (act2): LeakyReLU(negative_slope=0.01, inplace=True)
+          (downsample): Sequential(
+            (0): Conv1d(32, 64, kernel_size=(15,), stride=(6,))
+            (1): BatchNorm1d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+        (4): BasicBlock(
+          (conv1): Conv1d(64, 64, kernel_size=(15,), stride=(1,), padding=(7,))
+          (bn1): BatchNorm1d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (act1): LeakyReLU(negative_slope=0.01, inplace=True)
+          (conv2): Conv1d(64, 64, kernel_size=(15,), stride=(1,), padding=(7,))
+          (bn2): BatchNorm1d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (act2): LeakyReLU(negative_slope=0.01, inplace=True)
+        )
+        (5): BasicBlock(
+          (conv1): Conv1d(64, 128, kernel_size=(15,), stride=(6,))
+          (bn1): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (act1): LeakyReLU(negative_slope=0.01, inplace=True)
+          (conv2): Conv1d(128, 128, kernel_size=(15,), stride=(1,), padding=(7,))
+          (bn2): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (act2): LeakyReLU(negative_slope=0.01, inplace=True)
+          (downsample): Sequential(
+            (0): Conv1d(64, 128, kernel_size=(15,), stride=(6,))
+            (1): BatchNorm1d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          )
+        )
+      )
+    )
+    (facial_encoder): Sequential(
+      (0): BasicBlock(
+        (conv1): Conv1d(51, 16, kernel_size=(7,), stride=(1,), padding=(3,))
+        (bn1): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (act1): LeakyReLU(negative_slope=0.01, inplace=True)
+        (conv2): Conv1d(16, 16, kernel_size=(7,), stride=(1,), padding=(3,))
+        (bn2): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (act2): LeakyReLU(negative_slope=0.01, inplace=True)
+        (downsample): Sequential(
+          (0): Conv1d(51, 16, kernel_size=(7,), stride=(1,), padding=(3,))
+          (1): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+      (1): BasicBlock(
+        (conv1): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(1,))
+        (bn1): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (act1): LeakyReLU(negative_slope=0.01, inplace=True)
+        (conv2): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(1,))
+        (bn2): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (act2): LeakyReLU(negative_slope=0.01, inplace=True)
+        (downsample): Sequential(
+          (0): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(1,))
+          (1): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+      (2): BasicBlock(
+        (conv1): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(1,))
+        (bn1): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (act1): LeakyReLU(negative_slope=0.01, inplace=True)
+        (conv2): Conv1d(16, 16, kernel_size=(3,), stride=(1,), padding=(1,))
+        (bn2): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (act2): LeakyReLU(negative_slope=0.01, inplace=True)
+      )
+      (3): BasicBlock(
+        (conv1): Conv1d(16, 32, kernel_size=(3,), stride=(1,), padding=(1,))
+        (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (act1): LeakyReLU(negative_slope=0.01, inplace=True)
+        (conv2): Conv1d(32, 32, kernel_size=(3,), stride=(1,), padding=(1,))
+        (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (act2): LeakyReLU(negative_slope=0.01, inplace=True)
+        (downsample): Sequential(
+          (0): Conv1d(16, 32, kernel_size=(3,), stride=(1,), padding=(1,))
+          (1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+    )
+    (text_encoder): TextEncoderTCN(
+      (embedding): Embedding(5793, 300)
+      (tcn): TemporalConvNet(
+        (network): Sequential(
+          (0): TemporalBlock(
+            (conv1): Conv1d(300, 256, kernel_size=(2,), stride=(1,), padding=(1,))
+            (chomp1): Chomp1d()
+            (relu1): ReLU()
+            (dropout1): Dropout(p=0.3, inplace=False)
+            (conv2): Conv1d(256, 256, kernel_size=(2,), stride=(1,), padding=(1,))
+            (chomp2): Chomp1d()
+            (relu2): ReLU()
+            (dropout2): Dropout(p=0.3, inplace=False)
+            (net): Sequential(
+              (0): Conv1d(300, 256, kernel_size=(2,), stride=(1,), padding=(1,))
+              (1): Chomp1d()
+              (2): ReLU()
+              (3): Dropout(p=0.3, inplace=False)
+              (4): Conv1d(256, 256, kernel_size=(2,), stride=(1,), padding=(1,))
+              (5): Chomp1d()
+              (6): ReLU()
+              (7): Dropout(p=0.3, inplace=False)
+            )
+            (downsample): Conv1d(300, 256, kernel_size=(1,), stride=(1,))
+            (relu): ReLU()
+          )
+          (1): TemporalBlock(
+            (conv1): Conv1d(256, 256, kernel_size=(2,), stride=(1,), padding=(2,), dilation=(2,))
+            (chomp1): Chomp1d()
+            (relu1): ReLU()
+            (dropout1): Dropout(p=0.3, inplace=False)
+            (conv2): Conv1d(256, 256, kernel_size=(2,), stride=(1,), padding=(2,), dilation=(2,))
+            (chomp2): Chomp1d()
+            (relu2): ReLU()
+            (dropout2): Dropout(p=0.3, inplace=False)
+            (net): Sequential(
+              (0): Conv1d(256, 256, kernel_size=(2,), stride=(1,), padding=(2,), dilation=(2,))
+              (1): Chomp1d()
+              (2): ReLU()
+              (3): Dropout(p=0.3, inplace=False)
+              (4): Conv1d(256, 256, kernel_size=(2,), stride=(1,), padding=(2,), dilation=(2,))
+              (5): Chomp1d()
+              (6): ReLU()
+              (7): Dropout(p=0.3, inplace=False)
+            )
+            (relu): ReLU()
+          )
+          (2): TemporalBlock(
+            (conv1): Conv1d(256, 256, kernel_size=(2,), stride=(1,), padding=(4,), dilation=(4,))
+            (chomp1): Chomp1d()
+            (relu1): ReLU()
+            (dropout1): Dropout(p=0.3, inplace=False)
+            (conv2): Conv1d(256, 256, kernel_size=(2,), stride=(1,), padding=(4,), dilation=(4,))
+            (chomp2): Chomp1d()
+            (relu2): ReLU()
+            (dropout2): Dropout(p=0.3, inplace=False)
+            (net): Sequential(
+              (0): Conv1d(256, 256, kernel_size=(2,), stride=(1,), padding=(4,), dilation=(4,))
+              (1): Chomp1d()
+              (2): ReLU()
+              (3): Dropout(p=0.3, inplace=False)
+              (4): Conv1d(256, 256, kernel_size=(2,), stride=(1,), padding=(4,), dilation=(4,))
+              (5): Chomp1d()
+              (6): ReLU()
+              (7): Dropout(p=0.3, inplace=False)
+            )
+            (relu): ReLU()
+          )
+          (3): TemporalBlock(
+            (conv1): Conv1d(256, 256, kernel_size=(2,), stride=(1,), padding=(8,), dilation=(8,))
+            (chomp1): Chomp1d()
+            (relu1): ReLU()
+            (dropout1): Dropout(p=0.3, inplace=False)
+            (conv2): Conv1d(256, 256, kernel_size=(2,), stride=(1,), padding=(8,), dilation=(8,))
+            (chomp2): Chomp1d()
+            (relu2): ReLU()
+            (dropout2): Dropout(p=0.3, inplace=False)
+            (net): Sequential(
+              (0): Conv1d(256, 256, kernel_size=(2,), stride=(1,), padding=(8,), dilation=(8,))
+              (1): Chomp1d()
+              (2): ReLU()
+              (3): Dropout(p=0.3, inplace=False)
+              (4): Conv1d(256, 256, kernel_size=(2,), stride=(1,), padding=(8,), dilation=(8,))
+              (5): Chomp1d()
+              (6): ReLU()
+              (7): Dropout(p=0.3, inplace=False)
+            )
+            (relu): ReLU()
+          )
+        )
+      )
+      (decoder): Linear(in_features=256, out_features=128, bias=True)
+      (drop): Dropout(p=0.1, inplace=False)
+    )
+    (speaker_embedding): Sequential(
+      (0): Embedding(30, 8)
+      (1): Linear(in_features=8, out_features=8, bias=True)
+      (2): LeakyReLU(negative_slope=0.1, inplace=True)
+    )
+    (emotion_embedding): Sequential(
+      (0): Embedding(8, 8)
+      (1): Linear(in_features=8, out_features=8, bias=True)
+    )
+    (emotion_embedding_tail): Sequential(
+      (0): Conv1d(8, 8, kernel_size=(9,), stride=(1,), padding=(4,))
+      (1): BatchNorm1d(8, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (2): LeakyReLU(negative_slope=0.3, inplace=True)
+      (3): Conv1d(8, 16, kernel_size=(9,), stride=(1,), padding=(4,))
+      (4): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (5): LeakyReLU(negative_slope=0.3, inplace=True)
+      (6): Conv1d(16, 16, kernel_size=(9,), stride=(1,), padding=(4,))
+      (7): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (8): LeakyReLU(negative_slope=0.3, inplace=True)
+      (9): Conv1d(16, 8, kernel_size=(9,), stride=(1,), padding=(4,))
+      (10): BatchNorm1d(8, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (11): LeakyReLU(negative_slope=0.3, inplace=True)
+    )
+    (LSTM): LSTM(446, 256, num_layers=4, batch_first=True, dropout=0.3, bidirectional=True)
+    (out): Sequential(
+      (0): Linear(in_features=256, out_features=128, bias=True)
+      (1): LeakyReLU(negative_slope=0.1, inplace=True)
+      (2): Linear(in_features=128, out_features=27, bias=True)
+    )
+    (LSTM_hands): LSTM(473, 256, num_layers=4, batch_first=True, dropout=0.3, bidirectional=True)
+    (out_hands): Sequential(
+      (0): Linear(in_features=256, out_features=128, bias=True)
+      (1): LeakyReLU(negative_slope=0.1, inplace=True)
+      (2): Linear(in_features=128, out_features=114, bias=True)
+    )
+    (audio_fusion): Sequential(
+      (0): Linear(in_features=272, out_features=128, bias=True)
+      (1): LeakyReLU(negative_slope=0.1, inplace=True)
+      (2): Linear(in_features=128, out_features=128, bias=True)
+      (3): LeakyReLU(negative_slope=0.1, inplace=True)
+    )
+    (facial_fusion): Sequential(
+      (0): Linear(in_features=304, out_features=128, bias=True)
+      (1): LeakyReLU(negative_slope=0.1, inplace=True)
+      (2): Linear(in_features=128, out_features=32, bias=True)
+      (3): LeakyReLU(negative_slope=0.1, inplace=True)
+    )
+  )
+)
+ 05-15 14:42:04 | init CaMN success
+ 05-15 14:42:04 | load self-pretrained checkpoints for HalfEmbeddingNet
+ 05-15 14:42:04 | DataParallel(
+  (module): HalfEmbeddingNet(
+    (pose_encoder): PoseEncoderConv(
+      (net): Sequential(
+        (0): Sequential(
+          (0): Conv1d(141, 300, kernel_size=(3,), stride=(1,))
+          (1): BatchNorm1d(300, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): LeakyReLU(negative_slope=0.2, inplace=True)
+        )
+        (1): Sequential(
+          (0): Conv1d(300, 600, kernel_size=(3,), stride=(1,))
+          (1): BatchNorm1d(600, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): LeakyReLU(negative_slope=0.2, inplace=True)
+        )
+        (2): Sequential(
+          (0): Conv1d(600, 600, kernel_size=(4,), stride=(2,))
+          (1): BatchNorm1d(600, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): LeakyReLU(negative_slope=0.2, inplace=True)
+        )
+        (3): Conv1d(600, 300, kernel_size=(3,), stride=(1,))
+      )
+      (out_net): Sequential(
+        (0): Linear(in_features=3600, out_features=1200, bias=True)
+        (1): BatchNorm1d(1200, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): LeakyReLU(negative_slope=True)
+        (3): Linear(in_features=1200, out_features=600, bias=True)
+        (4): BatchNorm1d(600, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (5): LeakyReLU(negative_slope=True)
+        (6): Linear(in_features=600, out_features=300, bias=True)
+      )
+      (fc_mu): Linear(in_features=300, out_features=300, bias=True)
+      (fc_logvar): Linear(in_features=300, out_features=300, bias=True)
+    )
+    (decoder): PoseDecoderConv(
+      (pre_net): Sequential(
+        (0): Linear(in_features=300, out_features=600, bias=True)
+        (1): BatchNorm1d(600, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): LeakyReLU(negative_slope=True)
+        (3): Linear(in_features=600, out_features=1258, bias=True)
+      )
+      (net): Sequential(
+        (0): ConvTranspose1d(37, 300, kernel_size=(3,), stride=(1,))
+        (1): BatchNorm1d(300, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): LeakyReLU(negative_slope=0.2, inplace=True)
+        (3): ConvTranspose1d(300, 300, kernel_size=(3,), stride=(1,))
+        (4): BatchNorm1d(300, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (5): LeakyReLU(negative_slope=0.2, inplace=True)
+        (6): Conv1d(300, 600, kernel_size=(3,), stride=(1,))
+        (7): Conv1d(600, 141, kernel_size=(3,), stride=(1,))
+      )
+    )
+  )
+)
+ 05-15 14:42:04 | init HalfEmbeddingNet success
+ 05-15 14:42:04 | Testing from ckpt ...
+ 05-15 14:42:08 | An error has been caught in function '<module>', process 'MainProcess' (37388), thread 'MainThread' (13464):
+Traceback (most recent call last):
+
+> File "S:\audio2pose\codes\audio2pose\test.py", line 246, in <module>
+    main_worker(0, 1, args)
+    │                 └ Namespace(config='./configs/camn_beat_4english_15_141.yaml', project='audio2pose', csv='git3.csv', trainer='camn', notes='', ...
+    └ <function main_worker at 0x0000026FC3C5F040>
+
+  File "S:\audio2pose\codes\audio2pose\test.py", line 239, in main_worker
+    trainer.test(epoch)
+    │       │    └ 9999
+    │       └ <function BaseTrainer.test at 0x0000026FC3C59F70>
+    └ <__main__.BaseTrainer object at 0x0000026FC4DB9EB0>
+
+  File "S:\audio2pose\codes\audio2pose\test.py", line 176, in test
+    out_dir_vec = self.model(**dict(pre_seq=pre_pose, in_audio=in_audio, in_text=in_word, in_facial=in_facial, in_id=in_id, in_emo=in_emo))
+                  │    │                    │                  │                 │                  │                │             └ <unprintable Tensor object>
+                  │    │                    │                  │                 │                  │                └ <unprintable Tensor object>
+                  │    │                    │                  │                 │                  └ <unprintable Tensor object>
+                  │    │                    │                  │                 └ <unprintable Tensor object>
+                  │    │                    │                  └ <unprintable Tensor object>
+                  │    │                    └ <unprintable Tensor object>
+                  │    └ DataParallel(
+                  │        (module): CaMN(
+                  │          (audio_encoder): WavEncoder(
+                  │            (feat_extractor): Sequential(
+                  │              (0): BasicBlock(...
+                  └ <__main__.BaseTrainer object at 0x0000026FC4DB9EB0>
+
+  File "C:\Users\tseka\mambaforge\envs\beat\lib\site-packages\torch\nn\modules\module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           │             │       └ <unprintable dict object>
+           │             └ ()
+           └ <bound method DataParallel.forward of DataParallel(
+               (module): CaMN(
+                 (audio_encoder): WavEncoder(
+                   (feat_extractor)...
+
+  File "C:\Users\tseka\mambaforge\envs\beat\lib\site-packages\torch\nn\parallel\data_parallel.py", line 169, in forward
+    return self.module(*inputs[0], **kwargs[0])
+           │            │            └ <unprintable tuple object>
+           │            └ ((),)
+           └ DataParallel(
+               (module): CaMN(
+                 (audio_encoder): WavEncoder(
+                   (feat_extractor): Sequential(
+                     (0): BasicBlock(...
+
+  File "C:\Users\tseka\mambaforge\envs\beat\lib\site-packages\torch\nn\modules\module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           │             │       └ <unprintable dict object>
+           │             └ ()
+           └ <bound method CaMN.forward of CaMN(
+               (audio_encoder): WavEncoder(
+                 (feat_extractor): Sequential(
+                   (0): BasicBlock(
+              ...
+
+  File "S:\audio2pose\codes\audio2pose\models\camn.py", line 357, in forward
+    text_feat_seq, _ = self.text_encoder(in_text)
+    │                  │                 └ <unprintable Tensor object>
+    │                  └ CaMN(
+    │                      (audio_encoder): WavEncoder(
+    │                        (feat_extractor): Sequential(
+    │                          (0): BasicBlock(
+    │                            (conv1): Conv1d(1, 32, ...
+    └ None
+
+  File "C:\Users\tseka\mambaforge\envs\beat\lib\site-packages\torch\nn\modules\module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           │             │       └ {}
+           │             └ <unprintable tuple object>
+           └ <bound method TextEncoderTCN.forward of TextEncoderTCN(
+               (embedding): Embedding(5793, 300)
+               (tcn): TemporalConvNet(
+                 (ne...
+
+  File "S:\audio2pose\codes\audio2pose\models\camn.py", line 98, in forward
+    y = self.tcn(emb.transpose(1, 2)).transpose(1, 2)
+        │        │   └ <method 'transpose' of 'torch._C._TensorBase' objects>
+        │        └ <unprintable Tensor object>
+        └ TextEncoderTCN(
+            (embedding): Embedding(5793, 300)
+            (tcn): TemporalConvNet(
+              (network): Sequential(
+                (0): TemporalB...
+
+  File "C:\Users\tseka\mambaforge\envs\beat\lib\site-packages\torch\nn\modules\module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           │             │       └ {}
+           │             └ <unprintable tuple object>
+           └ <bound method TemporalConvNet.forward of TemporalConvNet(
+               (network): Sequential(
+                 (0): TemporalBlock(
+                   (conv1): Con...
+
+  File "S:\audio2pose\codes\audio2pose\models\camn.py", line 66, in forward
+    return self.network(x)
+           │            └ <unprintable Tensor object>
+           └ TemporalConvNet(
+               (network): Sequential(
+                 (0): TemporalBlock(
+                   (conv1): Conv1d(300, 256, kernel_size=(2,), stride=(1...
+
+  File "C:\Users\tseka\mambaforge\envs\beat\lib\site-packages\torch\nn\modules\module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           │             │       └ {}
+           │             └ <unprintable tuple object>
+           └ <bound method Sequential.forward of Sequential(
+               (0): TemporalBlock(
+                 (conv1): Conv1d(300, 256, kernel_size=(2,), stride=...
+
+  File "C:\Users\tseka\mambaforge\envs\beat\lib\site-packages\torch\nn\modules\container.py", line 217, in forward
+    input = module(input)
+            │      └ <unprintable Tensor object>
+            └ TemporalBlock(
+                (conv1): Conv1d(300, 256, kernel_size=(2,), stride=(1,), padding=(1,))
+                (chomp1): Chomp1d()
+                (relu1): ReLU...
+
+  File "C:\Users\tseka\mambaforge\envs\beat\lib\site-packages\torch\nn\modules\module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           │             │       └ {}
+           │             └ <unprintable tuple object>
+           └ <bound method TemporalBlock.forward of TemporalBlock(
+               (conv1): Conv1d(300, 256, kernel_size=(2,), stride=(1,), padding=(1,)...
+
+  File "S:\audio2pose\codes\audio2pose\models\camn.py", line 46, in forward
+    out = self.net(x)
+          │        └ <unprintable Tensor object>
+          └ TemporalBlock(
+              (conv1): Conv1d(300, 256, kernel_size=(2,), stride=(1,), padding=(1,))
+              (chomp1): Chomp1d()
+              (relu1): ReLU...
+
+  File "C:\Users\tseka\mambaforge\envs\beat\lib\site-packages\torch\nn\modules\module.py", line 1501, in _call_impl
+    return forward_call(*args, **kwargs)
+           │             │       └ {}
+           │             └ <unprintable tuple object>
+           └ <bound method Sequential.forward of Sequential(
+               (0): Conv1d(300, 256, kernel_size=(2,), stride=(1,), padding=(1,))
+               (1): C...
+
+  File "C:\Users\tseka\mambaforge\envs\beat\lib\site-packages\torch\nn\modules\container.py", line 217, in forward
+    input = module(input)
+            │      └ <unprintable Tensor object>
+            └ Conv1d(300, 256, kernel_size=(2,), stride=(1,), padding=(1,))
+
+  File "C:\Users\tseka\mambaforge\envs\beat\lib\site-packages\torch\nn\modules\module.py", line 1538, in _call_impl
+    result = forward_call(*args, **kwargs)
+             │             │       └ {}
+             │             └ <unprintable tuple object>
+             └ <bound method Conv1d.forward of Conv1d(300, 256, kernel_size=(2,), stride=(1,), padding=(1,))>
+
+  File "C:\Users\tseka\mambaforge\envs\beat\lib\site-packages\torch\nn\modules\conv.py", line 313, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+           │    │             │      │    │       └ Conv1d(300, 256, kernel_size=(2,), stride=(1,), padding=(1,))
+           │    │             │      │    └ <unprintable Tensor object>
+           │    │             │      └ Conv1d(300, 256, kernel_size=(2,), stride=(1,), padding=(1,))
+           │    │             └ <unprintable Tensor object>
+           │    └ <function Conv1d._conv_forward at 0x0000026FFE5855E0>
+           └ Conv1d(300, 256, kernel_size=(2,), stride=(1,), padding=(1,))
+
+  File "C:\Users\tseka\mambaforge\envs\beat\lib\site-packages\torch\nn\modules\conv.py", line 309, in _conv_forward
+    return F.conv1d(input, weight, bias, self.stride,
+           │ │      │      │       │     │    └ (1,)
+           │ │      │      │       │     └ Conv1d(300, 256, kernel_size=(2,), stride=(1,), padding=(1,))
+           │ │      │      │       └ <unprintable Parameter object>
+           │ │      │      └ <unprintable Tensor object>
+           │ │      └ <unprintable Tensor object>
+           │ └ <built-in method conv1d of type object at 0x00007FFD58A90560>
+           └ <module 'torch.nn.functional' from 'C:\\Users\\tseka\\mambaforge\\envs\\beat\\lib\\site-packages\\torch\\nn\\functional.py'>
+
+RuntimeError: CUDA error: device-side assert triggered
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+

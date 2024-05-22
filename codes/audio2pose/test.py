@@ -90,7 +90,7 @@ class BaseTrainer(object):
         self.grad_norm = args.grad_norm 
       
         self.no_adv_epochs = args.no_adv_epochs
-        self.log_period = args.log_period
+        self.log_period = args.log_period 
         self.test_demo = args.root_path + args.test_data_path + f"{args.pose_rep}_vis/"
        
         self.test_data = __import__(f"dataloaders.{args.dataset}", fromlist=["something"]).CustomDataset(args, "test")
@@ -109,7 +109,8 @@ class BaseTrainer(object):
         self.model = torch.nn.DataParallel(self.model, args.gpus).cuda()
         if self.rank == 0:
             logger.info(self.model)
-            wandb.watch(self.model)
+            if wandb.run is not None:
+                wandb.watch(self.model)
             logger.info(f"init {args.g_name} success")
             
         if args.e_name is not None:
@@ -120,7 +121,8 @@ class BaseTrainer(object):
             self.eval_model = torch.nn.DataParallel(self.eval_model, args.gpus).cuda()    
             if self.rank == 0:
                 logger.info(self.eval_model)
-                wandb.watch(self.eval_model)
+                if wandb.run is not None:
+                    wandb.watch(self.eval_model)
                 logger.info(f"init {args.e_name} success")
              
     def test_recording(self, epoch, metrics):
@@ -132,7 +134,8 @@ class BaseTrainer(object):
                 if "val" in name:
                     if metric.count > 0:
                         pstr_curr += "{}: {:.3f}     \t".format(metric.name, metric.avg)
-                        wandb.log({metric.name: metric.avg}, step=epoch*self.train_length)
+                        if wandb.run is not None:
+                            wandb.log({metric.name: metric.avg}, step=epoch*self.train_length)
                         if metric.avg < self.best_epochs[metric.name][0]:
                             self.best_epochs[metric.name][0] = metric.avg
                             self.best_epochs[metric.name][1] = epoch
@@ -227,7 +230,7 @@ class BaseTrainer(object):
 def main_worker(rank, world_size, args):
     if not sys.warnoptions:
         warnings.simplefilter("ignore")
-    dist.init_process_group("nccl", rank=rank, world_size=world_size)
+    dist.init_process_group("gloo", rank=rank, world_size=world_size)
         
     logger_tools.set_args_and_logger(args, rank)
     other_tools.set_random_seed(args)

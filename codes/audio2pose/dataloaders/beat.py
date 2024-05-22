@@ -413,6 +413,7 @@ class CustomDataset(Dataset):
             key = "{:005}".format(idx).encode("ascii")
             sample = txn.get(key)
             sample = pickle.loads(sample)
+            # sample = pyarrow.deserialize(sample)
             tar_pose, in_audio, in_facial, in_word, emo, sem, vid = sample
             vid = torch.from_numpy(vid).int()
             emo = torch.from_numpy(emo).int()

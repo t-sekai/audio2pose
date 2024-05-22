@@ -73,7 +73,7 @@ class TextEncoderTCN(nn.Module):
         super(TextEncoderTCN, self).__init__()
 
         if pre_trained_embedding is not None:  # use pre-trained embedding (fasttext)
-            #print(pre_trained_embedding.shape)
+            print(pre_trained_embedding.shape, n_words, embed_size)
             assert pre_trained_embedding.shape[0] == n_words
             assert pre_trained_embedding.shape[1] == embed_size
             self.embedding = nn.Embedding.from_pretrained(torch.FloatTensor(pre_trained_embedding),

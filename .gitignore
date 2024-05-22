@@ -1,6 +1,8 @@
 datasets/beat_cache/beat_4english_15_141/test/*
 datasets/beat_cache/beat_4english_15_141/val/*
 datasets/beat_cache/beat_4english_15_141/train/*
+datasets/beat_cache/beat_4english_15_141/test_old
+datasets/beat_cache/beat_4english_15_141/weights/*
 datasets/beat_cache/cache_name
 datasets/beat_english_v0.2.1
 datasets/cc.en.300.bin
@@ -15,3 +17,6 @@ datasets/beat_cache/beat_4english_15_141/train/facial52/*_*_*.npy
 
 !datasets/beat_cache/beat_4english_15_141/train/wave16k/
 datasets/beat_cache/beat_4english_15_141/train/wave16k/*_*_*.npy
+
+archive
+outputs

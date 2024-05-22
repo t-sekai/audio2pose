@@ -26,7 +26,7 @@ emotion_f: 8
 speaker_f: 8
 audio_f: 128
 facial_f: 32
-word_index_num: 5793
+word_index_num: 11247
 word_dims: 300
 batch_size: 256
 no_adv_epoch: 200

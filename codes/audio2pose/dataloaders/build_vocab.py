@@ -141,5 +141,5 @@ def index_words_from_textgrid(lang_model, data_path):
     
 if __name__ == "__main__":
     #11195 for all, 5793 for 4 speakers
-    build_vocab("beat_english_15_141", "/home/ma-user/work/datasets/beat_cache/beat_english_15_141/", "/home/ma-user/work/datasets/beat_cache/beat_english_15_141/vocab.pkl", "/home/ma-user/work/datasets/cc.en.300.bin", 300)
+    build_vocab("beat_english_15_141", "/datasets/beat_cache/beat_english_15_141/", "/home/ma-user/work/datasets/beat_cache/beat_english_15_141/vocab.pkl", "/home/ma-user/work/datasets/cc.en.300.bin", 300)
     

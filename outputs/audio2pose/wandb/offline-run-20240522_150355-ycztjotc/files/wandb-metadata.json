@@ -1,0 +1,56 @@
+{
+    "os": "Windows-10-10.0.19045-SP0",
+    "python": "3.9.19",
+    "heartbeatAt": "2024-05-22T22:03:55.922935",
+    "startedAt": "2024-05-22T22:03:55.810934",
+    "docker": null,
+    "cuda": null,
+    "args": [
+        "-c",
+        "./configs/camn_beat_4english_15_141.yaml"
+    ],
+    "state": "running",
+    "program": "D:\\gesturegen\\audio2pose\\codes\\audio2pose\\train.py",
+    "codePathLocal": "train.py",
+    "codePath": "codes\\audio2pose\\train.py",
+    "git": {
+        "remote": "https://github.com/t-sekai/audio2pose.git",
+        "commit": "9463d9dbb4b3c1179e92d0e299cee611d479642c"
+    },
+    "email": "ngsmith@ucsd.edu",
+    "root": "D:/gesturegen/audio2pose",
+    "host": "DESKTOP-81KJUT3",
+    "username": "Antec",
+    "executable": "C:\\Users\\Antec\\miniforge3\\envs\\beat\\python.exe",
+    "cpu_count": 16,
+    "cpu_count_logical": 24,
+    "cpu_freq": {
+        "current": 3187.0,
+        "min": 0.0,
+        "max": 3187.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 3187.0,
+            "min": 0.0,
+            "max": 3187.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 7452.019527435303,
+            "used": 1368.7566223144531
+        }
+    },
+    "gpu": "NVIDIA GeForce RTX 3090",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce RTX 3090",
+            "memory_total": 25769803776
+        }
+    ],
+    "memory": {
+        "total": 127.79373168945312
+    }
+}

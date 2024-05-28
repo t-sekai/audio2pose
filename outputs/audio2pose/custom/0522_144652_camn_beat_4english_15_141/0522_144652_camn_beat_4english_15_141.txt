@@ -1,0 +1,149 @@
+ 05-22 14:46:54 | {'acc_weight': 0.0,
+ 'adv_weight': 0.1,
+ 'ali_weight': 0.0,
+ 'amsgrad': False,
+ 'apex': False,
+ 'aud_prob': 1.0,
+ 'audio_dims': 1,
+ 'audio_f': 128,
+ 'audio_fps': 16000,
+ 'audio_norm': False,
+ 'audio_rep': 'wave16k',
+ 'batch_size': 256,
+ 'benchmark': True,
+ 'clean_final_seconds': 0,
+ 'clean_first_seconds': 0,
+ 'config': './configs/camn_beat_4english_15_141.yaml',
+ 'csv': 'git3.csv',
+ 'cudnn_enabled': True,
+ 'd_lr_weight': 0.2,
+ 'd_name': 'ConvDiscriminator',
+ 'dataset': 'beat',
+ 'ddp': False,
+ 'decay_epochs': 9999,
+ 'decay_rate': 0.1,
+ 'deterministic': True,
+ 'disable_filtering': False,
+ 'div_reg_weight': 0.0,
+ 'dropout_prob': 0.3,
+ 'e_name': 'HalfEmbeddingNet',
+ 'e_path': '/datasets/beat_cache/beat_4english_15_141/weights/ae_300.bin',
+ 'emo_rep': 'emo',
+ 'emotion_dims': 8,
+ 'emotion_f': 8,
+ 'epochs': 100,
+ 'eval_model': 'motion_autoencoder',
+ 'fac_prob': 1.0,
+ 'facial_dims': 51,
+ 'facial_f': 32,
+ 'facial_fps': 15,
+ 'facial_norm': False,
+ 'facial_rep': 'facial52',
+ 'fid_weight': 0.0,
+ 'finger_net': 'original',
+ 'freeze_wordembed': False,
+ 'g_name': 'CaMN',
+ 'gpus': [0],
+ 'grad_norm': 200,
+ 'hidden_size': 256,
+ 'is_train': True,
+ 'kld_aud_weight': 0.0,
+ 'kld_fac_weight': 0.0,
+ 'kld_weight': 0.0,
+ 'loader_workers': 0,
+ 'log_period': 10,
+ 'lr_base': 0.00025,
+ 'lr_min': 1e-07,
+ 'lr_policy': 'step',
+ 'mean_pose_path': '/datasets/beat_cache/beat_4english_15_141/train/',
+ 'model': 'camn',
+ 'model_name_best': 'best.pth',
+ 'model_name_last': 'last.pth',
+ 'momentum': 0.8,
+ 'multi_length_training': [1.0],
+ 'n_layer': 4,
+ 'name': '0522_144652_camn_beat_4english_15_141',
+ 'nesterov': True,
+ 'new_cache': False,
+ 'no_adv_epochs': 200,
+ 'notes': '',
+ 'opt': 'adam',
+ 'opt_betas': [0.5, 0.999],
+ 'out_root_path': '/outputs/audio2pose/',
+ 'pos_prob': 1.0,
+ 'pose_dims': 141,
+ 'pose_fps': 15,
+ 'pose_length': 34,
+ 'pose_norm': True,
+ 'pose_rep': 'bvh_rot',
+ 'pose_version': 'spine_neck_141',
+ 'pre_frames': 4,
+ 'pre_type': 'zero',
+ 'pretrain': False,
+ 'project': 'audio2pose',
+ 'random_seed': 2021,
+ 'rec_aud_weight': 0.0,
+ 'rec_fac_weight': 0.0,
+ 'rec_pos_weight': 0.0,
+ 'rec_txt_weight': 0.0,
+ 'rec_weight': 500.0,
+ 'root_path': '../..',
+ 'sem_rep': 'sem',
+ 'speaker_dims': 30,
+ 'speaker_f': 8,
+ 'speaker_id': 'id',
+ 'std_pose_path': '/datasets/beat_cache/beat_4english_15_141/train/',
+ 'stride': 10,
+ 'test_ckpt': '/datasets/beat_cache/beat_4english_15_141/weights/camn.bin',
+ 'test_data_path': '/datasets/beat_cache/beat_4english_15_141/test/',
+ 'test_period': 99,
+ 'torch_hub_path': '/datasets/hub/checkpoints/',
+ 'train_data_path': '/datasets/beat_cache/beat_4english_15_141/train/',
+ 'trainer': 'camn',
+ 'txt_prob': 1.0,
+ 'use_aug': False,
+ 'vae_length': 300,
+ 'val_data_path': '/datasets/beat_cache/beat_4english_15_141/val/',
+ 'variational_encoding': False,
+ 'vel_weight': 0.0,
+ 'warmup_epochs': 0,
+ 'warmup_lr': 0.0005,
+ 'weight_decay': 0.0,
+ 'word_dims': 300,
+ 'word_f': 128,
+ 'word_index_num': 11247,
+ 'word_rep': 'text'}
+ 05-22 14:46:54 | # ------------ 0522_144652_camn_beat_4english_15_141 ----------- #
+ 05-22 14:46:54 | PyTorch version: 2.2.2
+ 05-22 14:46:54 | CUDA version: 11.8
+ 05-22 14:46:54 | 1 GPUs
+ 05-22 14:46:54 | Random Seed: 2021
+ 05-22 14:46:54 | An error has been caught in function '<module>', process 'MainProcess' (22588), thread 'MainThread' (23104):
+Traceback (most recent call last):
+
+> File "D:\gesturegen\audio2pose\codes\audio2pose\train.py", line 265, in <module>
+    main_worker(0, 1, args)
+    │                 └ Namespace(config='./configs/camn_beat_4english_15_141.yaml', project='audio2pose', csv='git3.csv', trainer='camn', notes='', ...
+    └ <function main_worker at 0x0000024476257670>
+
+  File "D:\gesturegen\audio2pose\codes\audio2pose\train.py", line 229, in main_worker
+    trainer = __import__(f"{args.trainer}_trainer", fromlist=["something"]).CustomTrainer(args) if args.trainer != "base" else BaseTrainer(args)
+                                                                                          │        │    │                      │           └ Namespace(config='./configs/camn_beat_4english_15_141.yaml', project='audio2pose', csv='git3.csv', trainer='camn', notes='', ...
+                                                                                          │        │    │                      └ <class '__main__.BaseTrainer'>
+                                                                                          │        │    └ 'camn'
+                                                                                          │        └ Namespace(config='./configs/camn_beat_4english_15_141.yaml', project='audio2pose', csv='git3.csv', trainer='camn', notes='', ...
+                                                                                          └ Namespace(config='./configs/camn_beat_4english_15_141.yaml', project='audio2pose', csv='git3.csv', trainer='camn', notes='', ...
+
+  File "D:\gesturegen\audio2pose\codes\audio2pose\camn_trainer.py", line 26, in __init__
+    super().__init__(args)
+                     └ Namespace(config='./configs/camn_beat_4english_15_141.yaml', project='audio2pose', csv='git3.csv', trainer='camn', notes='', ...
+
+  File "D:\gesturegen\audio2pose\codes\audio2pose\train.py", line 91, in __init__
+    self.train_data = __import__(f"dataloaders.{args.dataset}", fromlist=["something"]).CustomDataset(args, "train")
+    │                                                                                                 └ Namespace(config='./configs/camn_beat_4english_15_141.yaml', project='audio2pose', csv='git3.csv', trainer='camn', notes='', ...
+    └ <camn_trainer.CustomTrainer object at 0x0000024476695880>
+
+  File "D:\gesturegen\audio2pose\codes\audio2pose\dataloaders\beat.py", line 12, in <module>
+    from termcolor import colored
+
+ModuleNotFoundError: No module named 'termcolor'

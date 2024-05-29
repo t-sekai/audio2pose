@@ -21,7 +21,7 @@ freeze_wordembed: False
 speaker_dims: 30
 facial_dims: 51
 pose_dims: 141
-word_f: 128
+word_f: 0
 emotion_f: 8
 speaker_f: 8
 audio_f: 128

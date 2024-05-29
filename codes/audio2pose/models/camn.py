@@ -5,6 +5,7 @@ import pickle
 import numpy as np
 from torch.nn.utils import weight_norm
 from .utils.build_vocab import Vocab
+import datetime
 
 class Chomp1d(nn.Module):
     def __init__(self, chomp_size):
@@ -332,9 +333,12 @@ class CaMN(PoseGenerator):
         )
         
     def forward(self, pre_seq, in_audio=None, in_facial=None, in_text=None, in_id=None, in_emo=None):
+        t0 = datetime.datetime.now()
         if self.do_flatten_parameters:
             self.LSTM.flatten_parameters()
             
+        t1 = datetime.datetime.now()
+
         decoder_hidden = decoder_hidden_hands = None
         text_feat_seq = audio_feat_seq = speaker_feat_seq = emo_feat_seq = face_feat_seq =  None
         in_data = None
@@ -346,28 +350,38 @@ class CaMN(PoseGenerator):
             speaker_feat_seq = speaker_feat_seq.repeat(1, pre_seq.shape[1], 1)
             in_data = torch.cat((in_data, speaker_feat_seq), 2) if in_data is not None else speaker_feat_seq
 
+        t2 = datetime.datetime.now()
+
         if self.emotion_embedding:
             emo_feat_seq = self.emotion_embedding(in_emo)
             emo_feat_seq = emo_feat_seq.permute([0,2,1])
             emo_feat_seq = self.emotion_embedding_tail(emo_feat_seq) 
             emo_feat_seq = emo_feat_seq.permute([0,2,1])
             in_data = torch.cat((in_data, emo_feat_seq), 2) if in_data is not None else emo_feat_seq
-            
+
+        t3 = datetime.datetime.now()
+
         if in_text is not None:
             text_feat_seq, _ = self.text_encoder(in_text)
             in_data = torch.cat((in_data, text_feat_seq), 2) if in_data is not None else text_feat_seq
             
+        t4 = datetime.datetime.now()
+
         if in_audio is not None:
             audio_feat_seq = self.audio_encoder(in_audio) 
             if in_text is not None:
                 if (audio_feat_seq.shape[1] != text_feat_seq.shape[1]):
                     min_gap = text_feat_seq.shape[1] - audio_feat_seq.shape[1]
                     audio_feat_seq = torch.cat((audio_feat_seq, audio_feat_seq[:,-min_gap:, :]),1)
-                
-            audio_fusion_seq = self.audio_fusion(torch.cat((audio_feat_seq, emo_feat_seq, speaker_feat_seq, text_feat_seq), dim=2).reshape(-1, self.audio_fusion_dim))
+            if in_text is None:
+                audio_fusion_seq = self.audio_fusion(torch.cat((audio_feat_seq, emo_feat_seq, speaker_feat_seq), dim=2).reshape(-1, self.audio_fusion_dim))
+            else:
+                audio_fusion_seq = self.audio_fusion(torch.cat((audio_feat_seq, emo_feat_seq, speaker_feat_seq, text_feat_seq), dim=2).reshape(-1, self.audio_fusion_dim))
             audio_feat_seq = audio_fusion_seq.reshape(*audio_feat_seq.shape)
             in_data = torch.cat((in_data, audio_feat_seq), 2) if in_data is not None else audio_feat_seq
         
+        t5 = datetime.datetime.now()
+
         if self.facial_f is not 0:
             face_feat_seq = self.facial_encoder(in_facial.permute([0, 2, 1]))
             face_feat_seq = face_feat_seq.permute([0, 2, 1])
@@ -378,28 +392,59 @@ class CaMN(PoseGenerator):
                 else:
                     face_feat_seq = torch.cat((face_feat_seq, face_feat_seq[:,-min_gap_2:, :]),1)
                 
-            face_fusion_seq = self.facial_fusion(torch.cat((face_feat_seq, audio_feat_seq, emo_feat_seq, speaker_feat_seq, text_feat_seq), dim=2).reshape(-1, self.facial_fusion_dim))
+            if text_feat_seq is None:
+                face_fusion_seq = self.facial_fusion(torch.cat((face_feat_seq, audio_feat_seq, emo_feat_seq, speaker_feat_seq), dim=2).reshape(-1, self.facial_fusion_dim))
+            else:
+                face_fusion_seq = self.facial_fusion(torch.cat((face_feat_seq, audio_feat_seq, emo_feat_seq, speaker_feat_seq, text_feat_seq), dim=2).reshape(-1, self.facial_fusion_dim))
             face_feat_seq = face_fusion_seq.reshape(*face_feat_seq.shape)
             in_data = torch.cat((in_data, face_feat_seq), 2) if in_data is not None else face_feat_seq
             
             
+        t6 = datetime.datetime.now()
+
         in_data = torch.cat((pre_seq, in_data), dim=2)
         output, _ = self.LSTM(in_data)
         output = output[:, :, :self.hidden_size] + output[:, :, self.hidden_size:] 
         output = self.out(output.reshape(-1, output.shape[2]))
         decoder_outputs = output.reshape(in_data.shape[0], in_data.shape[1], -1)
+
+        t7 = datetime.datetime.now()
         
         in_data = torch.cat((in_data, decoder_outputs), dim=2)
         output_hands, _ = self.LSTM_hands(in_data)
         output_hands = output_hands[:, :, :self.hidden_size] + output_hands[:, :, self.hidden_size:]
         output_hands = self.out_hands(output_hands.reshape(-1, output_hands.shape[2]))
         decoder_outputs_hands = output_hands.reshape(in_data.shape[0], in_data.shape[1], -1)
+
+        t8 = datetime.datetime.now()
         
         decoder_outputs_final = torch.zeros((in_data.shape[0], in_data.shape[1], 141)).cuda()
         decoder_outputs_final[:, :, 0:18] = decoder_outputs[:, :, 0:18]
         decoder_outputs_final[:, :, 18:75] = decoder_outputs_hands[:, :, 0:57]
         decoder_outputs_final[:, :, 75:84] = decoder_outputs[:, :, 18:27]
         decoder_outputs_final[:, :, 84:141] = decoder_outputs_hands[:, :, 57:114]
+
+        tf = datetime.datetime.now()
+        # td1 = t1 - t0
+        # td2 = t2 - t1
+        # td3 = t3 - t2
+        # td4 = t4 - t3
+        # td5 = t5 - t4
+        # td6 = t6 - t5
+        # td7 = t7 - t6
+        # td8 = t8 - t7
+        # td9 = tf - t8
+        # c = tf - t0
+        # print(f"Time to flatten params: {td1.total_seconds()}")
+        # print(f"Time to process speaker embeddings: {td2.total_seconds()}")
+        # print(f"Time to process emotion embeddings: {td3.total_seconds()}")
+        # print(f"Time to encode text: {td4.total_seconds()}")
+        # print(f"Time to encode audio: {td5.total_seconds()}")
+        # print(f"Time to process facial features: {td6.total_seconds()}")
+        # print(f"Time to output pose: {td7.total_seconds()}")
+        # print(f"Time to output hands: {td8.total_seconds()}")
+        # print(f"Time to process output: {td9.total_seconds()}")
+        # print(f"Total time: {c.total_seconds()}")
         return decoder_outputs_final
 
     

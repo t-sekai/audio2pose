@@ -236,7 +236,8 @@ def main_worker(rank, world_size, args):
         epoch_time = time.time()-start_time
         if trainer.rank == 0: logger.info("Time info >>>>  elapsed: %.2f mins\t"%(epoch_time/60)+"remain: %.2f mins"%((args.epochs/(epoch+1e-7)-1)*epoch_time/60))
         if trainer.ddp: trainer.train_loader.sampler.set_epoch(epoch)
-        trainer.train(epoch) 
+        trainer.train(epoch)
+        other_tools.save_checkpoints(os.path.join(trainer.checkpoint_path, f"last_epoch.bin"), trainer.model, opt=None, epoch=None, lrs=None)
         if (epoch+1) % args.test_period == 0:
             if rank == 0:
                 trainer.test(epoch)

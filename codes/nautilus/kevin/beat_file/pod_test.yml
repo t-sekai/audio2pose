@@ -20,22 +20,27 @@ spec:
         requests:
           cpu: "10"
           memory: "20Gi"
-          nvidia.com/gpu: "1"
+          #nvidia.com/gpu: "1"
           # ephemeral-storage: 100Gi
 
         limits:
           cpu: "10"
           memory: "20Gi"
-          nvidia.com/gpu: "1"
+          #nvidia.com/gpu: "1"
           # ephemeral-storage: 100Gi
       volumeMounts:
         # - name: data
         #   mountPath: /data
+        - name: cyberarch
+          mountPath: /cyberarch
         - name: tsc003-beat-vol
           mountPath: /tsc003-beat-vol
   volumes:
     # - name: data
     #   emptyDir: {}
+    - name: cyberarch
+      persistentVolumeClaim:
+        claimName: cyberarch
     - name: tsc003-beat-vol
       persistentVolumeClaim:
         claimName: tsc003-beat-vol

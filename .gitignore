@@ -19,3 +19,6 @@ datasets/beat_cache/beat_4english_15_141/train/wave16k/*_*_*.npy
 
 # !datasets/beat_cache/beat_4english_15_141/test/bvh_rot_cache
 # !datasets/beat_cache/beat_4english_15_141/val/bvh_rot_cache
+
+codes/audio2pose/ckpt_model
+outputs

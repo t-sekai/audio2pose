@@ -28,7 +28,6 @@ audio_f: 128
 facial_f: 32
 word_index_num: 11247
 word_dims: 300
-batch_size: 256
 no_adv_epoch: 200
 hidden_size: 256
 model: camn
@@ -43,5 +42,23 @@ trainer: camn
 kld_weight: 0.0
 div_reg_weight: 0.0
 grad_norm: 200
+#test_period: 99
+
+# logging/configs for gesturegen
+random_seed: 1
+batch_size: 16
 epochs: 100
-test_period: 99
+log_period: 50
+val_period: 600
+save_ckpt: True
+ckpt_dir: ckpt_model/
+save_period: 100 # epochs
+val_size: 50
+target_weight: 1.5
+expressive_weight: 0.5
+smooth_weight: 0.5
+
+wandb_project: multicontextnet
+wandb_group: spam
+wandb_entity: hm_gesture
+disable_wandb: True

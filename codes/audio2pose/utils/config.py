@@ -30,6 +30,21 @@ def parse_args():
     parser.add("--csv", default="git3.csv", type=str)
     parser.add("--trainer", default="camn", type=str)
     parser.add("--notes", default="", type=str)
+
+    # ------------- logging ------------------------#
+    parser.add("--wandb_project", default="multicontextnet", type=str)
+    parser.add("--wandb_group", default="default", type=str)
+    parser.add("--wandb_entity", default="hm_gesture", type=str)
+    parser.add("--disable_wandb", default=True, type=str2bool)
+    parser.add("--log_period", default=200, type=int)
+    parser.add("--save_period", default=100, type=int)
+    parser.add("--save_ckpt", default=True, type=str2bool)
+    parser.add("--ckpt_dir", default="ckpt_model/", type=str)
+    parser.add("--val_period", default=600, type=int)
+    parser.add("--val_size", default=50, type=int)
+    parser.add("--target_weight", default=1.5, type=float)
+    parser.add("--expressive_weight", default=0.5, type=float)
+    parser.add("--smooth_weight", default=0.5, type=float)
     
     # ------------- path and save name ---------------- #
     parser.add("--is_train", default=True, type=str2bool)
@@ -55,6 +70,7 @@ def parse_args():
     parser.add("--test_ckpt", default="/datasets/beat_cache/beat_4english_15_141/last.bin")
     parser.add("--variational_encoding", default=False, type=str2bool) 
     parser.add("--vae_length", default=256, type=int)
+    
 
     # --------------- data ---------------------------- #
     parser.add("--dataset", default="beat", type=str)
@@ -165,8 +181,8 @@ def parse_args():
     parser.add("--ddp", default=False, type=str2bool)
     #parser.add("--world_size")
     # logging
-    parser.add("--log_period", default=10, type=int)
-    parser.add("--test_period", default=20, type=int)
+    # parser.add("--log_period", default=10, type=int)
+    # parser.add("--test_period", default=20, type=int)
 
     args = parser.parse_args()
     idc = 0

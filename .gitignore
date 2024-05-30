@@ -22,3 +22,6 @@ datasets/beat_cache/beat_4english_15_141/train/wave16k/*_*_*.npy
 
 codes/audio2pose/ckpt_model
 outputs
+
+**/__pycache__/
+**/.ipynb_checkpoints/

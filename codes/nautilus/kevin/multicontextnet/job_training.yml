@@ -1,0 +1,53 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: tsc003-beat-move-files
+  namespace: cyberarch
+
+spec:
+  template:
+    spec:
+      containers:
+        - name: work-container
+          image: tsekai/a2bs_withpip:latest # docker image
+          # imagePullPolicy: Always
+          command:
+                - bash
+                - -c
+                - |
+                  source /usr/local/bin/_activate_current_env.sh
+                  cd /cyberarch/gesturegen/audio2pose
+                  git pull
+                  cd codes/audio2pose
+                  python train_multicontextnet.py -c configs/gesturegen_beat.yaml --wandb_project=multicontextnet --wandb_group=all-vertex --wandb_entity=hm_gesture --disable_wandb=False
+          resources:
+            requests:
+              cpu: "10"
+              memory: "20Gi"
+              nvidia.com/gpu: "1"
+              ephemeral-storage: 50Gi
+
+            limits:
+              cpu: "10"
+              memory: "20Gi"
+              nvidia.com/gpu: "1"
+              ephemeral-storage: 50Gi
+          volumeMounts:
+            - name: cyberarch
+              mountPath: /cyberarch
+      volumes:
+        - name: cyberarch
+          persistentVolumeClaim:
+            claimName: cyberarch
+      nodeSelector:
+        nautilus.io/disktype: nvme
+      restartPolicy: Never
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: nvidia.com/gpu.product
+                  operator: In
+                  values:
+                    - NVIDIA-GeForce-RTX-3090

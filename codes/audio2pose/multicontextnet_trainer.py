@@ -161,13 +161,13 @@ class Trainer():
                     }
                     train_metrics.update(self.common_metrics())
                     self.logger.log(train_metrics, 'train')
-                    print(f'[{self._ep_idx}][{it}/{len(self.train_loader)}]: [train] [target loss]: {train_metrics["target_loss"]}[smooth loss]: {train_metrics["smooth_loss"]}')
+                    print(f'[{self._ep_idx}][{it}/{len(self.train_loader)}]: [train] [target loss]: {train_metrics["target_loss"]} [smooth loss]: {train_metrics["smooth_loss"]}')
 
                 if it % self.val_period == 0:
                     val_metrics = self.val()
                     val_metrics.update(self.common_metrics())
                     self.logger.log(val_metrics,'val')
-                    print(f'[{self._ep_idx}][{it}/{len(self.train_loader)}]: [val] [target loss]: {val_metrics["target_loss"]}[smooth loss]: {val_metrics["smooth_loss"]}')
+                    print(f'[{self._ep_idx}][{it}/{len(self.train_loader)}]: [val] [target loss]: {val_metrics["target_loss"]} [smooth loss]: {val_metrics["smooth_loss"]}')
 
                 self._iter += 1
             if (self._ep_idx+1) % self.save_period == 0:

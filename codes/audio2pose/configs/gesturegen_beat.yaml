@@ -46,7 +46,7 @@ grad_norm: 200
 
 # logging/configs for gesturegen
 random_seed: 1
-batch_size: 16
+batch_size: 256
 epochs: 100
 log_period: 50
 val_period: 600

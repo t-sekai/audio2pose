@@ -20,3 +20,6 @@ datasets/beat_cache/beat_4english_15_141/train/wave16k/*_*_*.npy
 
 archive
 outputs
+
+**/__pycache__/
+*/**/__pycache__/

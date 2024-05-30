@@ -47,12 +47,12 @@ grad_norm: 200
 # logging/configs for gesturegen
 random_seed: 2024
 batch_size: 256
-epochs: 100
+epochs: 1000
 log_period: 50
 val_period: 600
 save_ckpt: True
 ckpt_dir: ckpt_model/
-save_period: 1000 # epochs
+save_period: 100 # epochs
 val_size: 50
 target_weight: 2.0
 expressive_weight: 0.5

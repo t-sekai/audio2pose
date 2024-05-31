@@ -31,7 +31,7 @@ def parse_args():
     parser.add("--trainer", default="camn", type=str)
     parser.add("--notes", default="", type=str)
 
-    # ------------- logging ------------------------#
+    # ------------- logging and other gesturegen stuff ------------------------#
     parser.add("--wandb_project", default="multicontextnet", type=str)
     parser.add("--wandb_group", default="default", type=str)
     parser.add("--wandb_entity", default="hm_gesture", type=str)
@@ -45,6 +45,8 @@ def parse_args():
     parser.add("--target_weight", default=1.5, type=float)
     parser.add("--expressive_weight", default=0.5, type=float)
     parser.add("--smooth_weight", default=0.5, type=float)
+    parser.add("--predict_flame", default=True, type=str2bool)
+    parser.add("--lang_model_path", default='/datasets/beat_cache/beat_4english_15_141/vocab.pkl', type=str)
     
     # ------------- path and save name ---------------- #
     parser.add("--is_train", default=True, type=str2bool)

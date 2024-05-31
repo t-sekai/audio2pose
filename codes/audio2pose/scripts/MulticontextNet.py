@@ -3,6 +3,7 @@ import torch.nn as nn
 import numpy as np
 from torch.nn.utils import weight_norm
 import pickle
+import os
 
 class Chomp1d(nn.Module):
     def __init__(self, chomp_size):
@@ -173,16 +174,21 @@ class FaceGenerator(nn.Module):
         super().__init__()
         #self.pre_length = args.pre_frames #4
         #self.gen_length = args.facial_length - args.pre_frames #30
-        self.facial_dims = args.facial_dims
+        self.predict_flame = args.predict_flame
+            
         self.speaker_f = args.speaker_f
         self.speaker_dims = args.speaker_dims
         self.emotion_f = args.emotion_f
         self.emotion_dims = args.emotion_dims
         self.audio_f = args.audio_f
         self.word_f = args.word_f
-        #self.facial_in = int(args.facial_rep[-2:])
-        
-        self.in_size = self.audio_f + self.word_f + self.facial_dims + 1
+        if self.predict_flame:
+            self.facial_dims = 111 # 100 flame expressions + 3 flame jaw + 8 bs eye movement
+            self.in_size = self.audio_f + self.word_f + self.facial_dims
+        else:
+            self.facial_dims = args.facial_dims
+            self.in_size = self.audio_f + self.word_f + self.facial_dims + 1
+
         self.audio_encoder = WavEncoder(self.audio_f)
         
         self.hidden_size = args.hidden_size
@@ -191,7 +197,7 @@ class FaceGenerator(nn.Module):
 
         self.text_encoder = None   
         if self.word_f != 0:
-            with open(f"../../datasets/beat_cache/beat_4english_15_141/vocab.pkl", 'rb') as f:
+            with open(args.root_path + args.lang_model_path, 'rb') as f: 
                 self.lang_model = pickle.load(f)
                 pre_trained_embedding = self.lang_model.word_embedding_weights
             self.text_encoder = TextEncoderTCN(args, args.word_index_num, args.word_dims, pre_trained_embedding=pre_trained_embedding,

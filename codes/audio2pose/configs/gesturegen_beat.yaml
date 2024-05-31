@@ -6,6 +6,8 @@ test_data_path: /datasets/beat_cache/beat_4english_15_141/test/
 mean_pose_path: /datasets/beat_cache/beat_4english_15_141/train/
 std_pose_path: /datasets/beat_cache/beat_4english_15_141/train/
 torch_hub_path: /datasets/hub/checkpoints/ 
+lang_model_path: /datasets/beat_cache/beat_4english_15_141/vocab.pkl
+
 e_path:  /datasets/beat_cache/beat_4english_15_141/weights/ae_300.bin
 test_ckpt: /datasets/beat_cache/beat_4english_15_141/weights/camn.bin
 dataset: beat
@@ -47,16 +49,17 @@ grad_norm: 200
 # logging/configs for gesturegen
 random_seed: 2024
 batch_size: 256
-epochs: 1000
+epochs: 500
 log_period: 50
 val_period: 600
 save_ckpt: True
 ckpt_dir: ckpt_model/
 save_period: 100 # epochs
 val_size: 50
-target_weight: 2.0
+target_weight: 1.5
 expressive_weight: 0.5
 smooth_weight: 0.5
+predict_flame: True
 
 wandb_project: multicontextnet
 wandb_group: spam

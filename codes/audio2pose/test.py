@@ -68,7 +68,8 @@ class BaseTrainer(object):
         self.facial_dims = args.facial_dims
         self.pose_length = args.pose_length
         self.stride = args.stride
-        self.word_rep = args.word_rep
+        # self.word_rep = args.word_rep
+        self.word_rep = None
         self.emo_rep = args.emo_rep
         self.sem_rep = args.sem_rep
         self.speaker_id = args.speaker_id

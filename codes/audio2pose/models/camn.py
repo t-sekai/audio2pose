@@ -373,10 +373,12 @@ class CaMN(PoseGenerator):
                 if (audio_feat_seq.shape[1] != text_feat_seq.shape[1]):
                     min_gap = text_feat_seq.shape[1] - audio_feat_seq.shape[1]
                     audio_feat_seq = torch.cat((audio_feat_seq, audio_feat_seq[:,-min_gap:, :]),1)
-            if in_text is None:
-                audio_fusion_seq = self.audio_fusion(torch.cat((audio_feat_seq, emo_feat_seq, speaker_feat_seq), dim=2).reshape(-1, self.audio_fusion_dim))
-            else:
                 audio_fusion_seq = self.audio_fusion(torch.cat((audio_feat_seq, emo_feat_seq, speaker_feat_seq, text_feat_seq), dim=2).reshape(-1, self.audio_fusion_dim))
+            else:
+                if (audio_feat_seq.shape[1] != emo_feat_seq.shape[1]):
+                    min_gap = emo_feat_seq.shape[1] - audio_feat_seq.shape[1]
+                    audio_feat_seq = torch.cat((audio_feat_seq, audio_feat_seq[:,-min_gap:, :]),1)
+                audio_fusion_seq = self.audio_fusion(torch.cat((audio_feat_seq, emo_feat_seq, speaker_feat_seq), dim=2).reshape(-1, self.audio_fusion_dim))
             audio_feat_seq = audio_fusion_seq.reshape(*audio_feat_seq.shape)
             in_data = torch.cat((in_data, audio_feat_seq), 2) if in_data is not None else audio_feat_seq
         

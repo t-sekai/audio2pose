@@ -59,7 +59,7 @@ val_size: 50
 target_weight: 1.5
 expressive_weight: 0.5
 smooth_weight: 0.5
-predict_flame: True
+predict_flame: False
 
 wandb_project: multicontextnet
 wandb_group: spam

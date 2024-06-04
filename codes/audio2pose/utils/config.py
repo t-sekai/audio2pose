@@ -108,6 +108,7 @@ def parse_args():
     parser.add("--pose_norm", default=True, type=str2bool)
         
     parser.add("--pose_length", default=34, type=int)
+    parser.add("--facial_length", default=34, type=int)
     parser.add("--pre_frames", default=4, type=int)
     parser.add("--stride", default=10, type=int)
     parser.add("--pre_type", default="zero", type=str)

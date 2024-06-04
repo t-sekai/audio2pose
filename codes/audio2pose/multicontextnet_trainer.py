@@ -3,6 +3,9 @@ import numpy as np
 import torch
 import os
 
+import trimesh
+from blendshapes import BLENDSHAPE_NAMES
+
 class Trainer():
     def __init__(self, args, device, train_data, val_data, model, logger):
         # Set up data loading
@@ -27,10 +30,18 @@ class Trainer():
         self.target_loss_function = torch.nn.HuberLoss()
         self.smooth_loss_function = torch.nn.CosineSimilarity(dim=2)
         self.mse_loss_function = torch.nn.MSELoss()
+
+        # Set up blendshape to flame parameters
         self.bs_to_flame = torch.from_numpy(np.load('mat_final.npy')).to(device)
         self.flame_to_bs = self.bs_to_flame.pinverse()
         self.predict_flame = args.predict_flame
         self.pre_frames = args.pre_frames
+
+        # Set up blendshape to vertices
+        self.V_basis = torch.tensor(trimesh.load('bs/Basis.obj').vertices, dtype=torch.float32).to(device)
+        self.V_basis_expanded = self.V_basis.unsqueeze(0).unsqueeze(0).expand(args.batch_size, args.facial_length, -1, -1)
+        self.V_bs = torch.stack([torch.tensor(trimesh.load(f'bs/exp/{bs_name}.obj').vertices, dtype=torch.float32) for bs_name in BLENDSHAPE_NAMES[:51]]).to(device)
+        self.V_deltas = (self.V_bs - self.V_basis.unsqueeze(0)).unsqueeze(0).unsqueeze(0)
 
         # Set up training/validation parameters
         self.epochs = args.epochs
@@ -79,9 +90,9 @@ class Trainer():
     def val(self):
         self.model.eval()
         val_target_loss_st = []
-        #val_expressive_loss_st = []
+        val_V_smooth_loss_st = []
         val_flame_smooth_loss_st = []
-        val_bs_smooth_loss_st = []
+        #val_bs_smooth_loss_st = []
         val_cnt = 0
 
         val_loader = torch.utils.data.DataLoader(
@@ -121,17 +132,15 @@ class Trainer():
                 in_pre_face[:, 0:self.pre_frames, :-1] = bs_facial[:, 0:self.pre_frames]
                 in_pre_face[:, 0:self.pre_frames, -1] = 1 
 
-                bs_out_face = self.model(in_pre_face,in_audio=in_audio,in_text=in_word, in_id=in_id, in_emo=in_emo)
-                flame_out_face = bs_out_face@self.bs_to_flame
-                target_loss = self.target_loss_function(flame_out_face, flame_facial) + self.target_loss_function(bs_out_face[:,:,6:14], bs_facial[:,:,6:14]) # to account for eye movement
-                #expressive_loss = self.expressive_loss_function(out_face, facial)
-                flame_smooth_loss = 1 - self.smooth_loss_function(flame_out_face[:,:-1,:], flame_out_face[:,1:,:]).mean()
-                bs_smooth_loss = 1 - self.smooth_loss_function(bs_out_face[:,:-1,:], bs_out_face[:,1:,:]).mean()
+                bs_pred_face = self.model(in_pre_face,in_audio=in_audio,in_text=in_word, in_id=in_id, in_emo=in_emo)
+                V_pred_face = self.V_basis_expanded + torch.sum(bs_pred_face.unsqueeze(3).unsqueeze(4) * self.V_deltas, axis=2)
+                V_gt_face = self.V_basis_expanded + torch.sum(bs_facial.unsqueeze(3).unsqueeze(4) * self.V_deltas, axis=2)
+                
+                target_loss = self.target_loss_function(V_pred_face, V_gt_face)
+                V_smooth_loss = 1 - self.smooth_loss_function(V_pred_face[:,:-1,:], V_pred_face[:,1:,:]).mean()
 
                 val_target_loss_st.append(target_loss.item())
-                #val_expressive_loss_st.append(expressive_loss.item())
-                val_flame_smooth_loss_st.append(flame_smooth_loss.item())      
-                val_bs_smooth_loss_st.append(bs_smooth_loss.item())      
+                val_V_smooth_loss_st.append(V_smooth_loss.item())      
             
             val_cnt += 1
             if val_cnt >= self.val_size:
@@ -144,8 +153,8 @@ class Trainer():
         else:
             return {
                 "target_loss": float(np.average(val_target_loss_st)),
-                "flame_smooth_loss": float(np.average(val_flame_smooth_loss_st)),
-                "bs_smooth_loss": float(np.average(val_bs_smooth_loss_st)),
+                "V_smooth_loss": float(np.average(val_V_smooth_loss_st)),
+                #"bs_smooth_loss": float(np.average(val_bs_smooth_loss_st)),
                 #"expressive_loss": float(np.average(val_expressive_loss_st)),
             }
 
@@ -193,26 +202,28 @@ class Trainer():
                     in_pre_face[:, 0:self.pre_frames, -1] = 1 
 
                     self.optimizer.zero_grad()
-                    bs_out_face = self.model(in_pre_face,in_audio=in_audio,in_text=in_word, in_id=in_id, in_emo=in_emo)
-                    flame_out_face = bs_out_face@self.bs_to_flame
-                    target_loss = self.target_loss_function(flame_out_face, flame_facial) + self.target_loss_function(bs_out_face[:,:,6:14], bs_facial[:,:,6:14]) # to account for eye movement
+                    bs_pred_face = self.model(in_pre_face,in_audio=in_audio,in_text=in_word, in_id=in_id, in_emo=in_emo)
+                    V_pred_face = self.V_basis_expanded + torch.sum(bs_pred_face.unsqueeze(3).unsqueeze(4) * self.V_deltas, axis=2)
+                    V_gt_face = self.V_basis_expanded + torch.sum(bs_facial.unsqueeze(3).unsqueeze(4) * self.V_deltas, axis=2)
+
+                    target_loss = self.target_loss_function(V_pred_face, V_gt_face)
+                    V_smooth_loss = 1 - self.smooth_loss_function(V_pred_face[:,:-1,:], V_pred_face[:,1:,:]).mean()
                     #expressive_loss = self.expressive_loss_function(out_face, facial)
-                    flame_smooth_loss = 1 - self.smooth_loss_function(flame_out_face[:,:-1,:], flame_out_face[:,1:,:]).mean()
-                    bs_smooth_loss = 1 - self.smooth_loss_function(bs_out_face[:,:-1,:], bs_out_face[:,1:,:]).mean()
-                    loss = self.target_weight * target_loss  + self.smooth_weight * flame_smooth_loss + self.smooth_weight * bs_smooth_loss# + expressive_weight * expressive_loss
+                    #flame_smooth_loss = 1 - self.smooth_loss_function(flame_out_face[:,:-1,:], flame_out_face[:,1:,:]).mean()
+                    #bs_smooth_loss = 1 - self.smooth_loss_function(bs_out_face[:,:-1,:], bs_out_face[:,1:,:]).mean()
+                    loss = self.target_weight * target_loss  + self.smooth_weight * V_smooth_loss #self.smooth_weight * flame_smooth_loss + self.smooth_weight * bs_smooth_loss# + expressive_weight * expressive_loss
                     loss.backward()
                     self.optimizer.step()
 
                     if it % self.log_period == 0:
                         train_metrics = {
                             "target_loss": float(target_loss.item()),
-                            "flame_smooth_loss": float(flame_smooth_loss.item()),
-                            "bs_smooth_loss": float(bs_smooth_loss.item())
+                            "V_smooth_loss": float(V_smooth_loss.item())
                             #"expressive_loss": float(expressive_loss.item()),
                         }
                         train_metrics.update(self.common_metrics())
                         self.logger.log(train_metrics, 'train')
-                        print(f'[{self._ep_idx}][{it}/{len(self.train_loader)}]: [train] [target loss]: {train_metrics["target_loss"]} flame smooth loss]: {train_metrics["flame_smooth_loss"]}  [bs smooth loss]: {train_metrics["bs_smooth_loss"]}')
+                        print(f'[{self._ep_idx}][{it}/{len(self.train_loader)}]: [train] [target loss]: {train_metrics["target_loss"]} vertices smooth loss]: {train_metrics["V_smooth_loss"]}')
 
                 if it % self.val_period == 0:
                     val_metrics = self.val()
@@ -221,7 +232,7 @@ class Trainer():
                     if self.predict_flame:
                         print(f'[{self._ep_idx}][{it}/{len(self.train_loader)}]: [val] [target loss]: {val_metrics["target_loss"]} [flame smooth loss]: {val_metrics["flame_smooth_loss"]}')
                     else:
-                        print(f'[{self._ep_idx}][{it}/{len(self.train_loader)}]: [val] [target loss]: {val_metrics["target_loss"]} [flame smooth loss]: {val_metrics["flame_smooth_loss"]}  [bs smooth loss]: {val_metrics["bs_smooth_loss"]}')
+                        print(f'[{self._ep_idx}][{it}/{len(self.train_loader)}]: [val] [target loss]: {val_metrics["target_loss"]} [vertices smooth loss]: {val_metrics["V_smooth_loss"]}')
 
                 self._iter += 1
             if (self._ep_idx+1) % self.save_period == 0:

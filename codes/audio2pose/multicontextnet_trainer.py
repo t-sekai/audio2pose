@@ -38,10 +38,10 @@ class Trainer():
         self.pre_frames = args.pre_frames
 
         # Set up blendshape to vertices
-        self.V_basis = torch.tensor(trimesh.load('bs/Basis.obj').vertices, dtype=torch.float32).to(device)
-        self.V_basis_expanded = self.V_basis.unsqueeze(0).unsqueeze(0).expand(args.batch_size, args.facial_length, -1, -1)
-        self.V_bs = torch.stack([torch.tensor(trimesh.load(f'bs/exp/{bs_name}.obj').vertices, dtype=torch.float32) for bs_name in BLENDSHAPE_NAMES[:51]]).to(device)
-        self.V_deltas = (self.V_bs - self.V_basis.unsqueeze(0)).unsqueeze(0).unsqueeze(0)
+        self.V_factor = 100
+        self.V_basis = torch.tensor(trimesh.load('bs/Basis.obj').vertices, dtype=torch.float32) * self.V_factor
+        self.V_bs = torch.stack([torch.tensor(trimesh.load(f'bs/exp/{bs_name}.obj').vertices, dtype=torch.float32) for bs_name in BLENDSHAPE_NAMES[:51]]) * self.V_factor
+        self.V_deltas = (self.V_bs - self.V_basis.unsqueeze(0)).unsqueeze(0).unsqueeze(0).to(device)
 
         # Set up training/validation parameters
         self.epochs = args.epochs
@@ -133,8 +133,8 @@ class Trainer():
                 in_pre_face[:, 0:self.pre_frames, -1] = 1 
 
                 bs_pred_face = self.model(in_pre_face,in_audio=in_audio,in_text=in_word, in_id=in_id, in_emo=in_emo)
-                V_pred_face = self.V_basis_expanded + torch.sum(bs_pred_face.unsqueeze(3).unsqueeze(4) * self.V_deltas, axis=2)
-                V_gt_face = self.V_basis_expanded + torch.sum(bs_facial.unsqueeze(3).unsqueeze(4) * self.V_deltas, axis=2)
+                V_pred_face = torch.sum(bs_pred_face.unsqueeze(3).unsqueeze(4) * self.V_deltas, axis=2)
+                V_gt_face = torch.sum(bs_facial.unsqueeze(3).unsqueeze(4) * self.V_deltas, axis=2)
                 
                 target_loss = self.target_loss_function(V_pred_face, V_gt_face)
                 V_smooth_loss = 1 - self.smooth_loss_function(V_pred_face[:,:-1,:], V_pred_face[:,1:,:]).mean()
@@ -203,8 +203,8 @@ class Trainer():
 
                     self.optimizer.zero_grad()
                     bs_pred_face = self.model(in_pre_face,in_audio=in_audio,in_text=in_word, in_id=in_id, in_emo=in_emo)
-                    V_pred_face = self.V_basis_expanded + torch.sum(bs_pred_face.unsqueeze(3).unsqueeze(4) * self.V_deltas, axis=2)
-                    V_gt_face = self.V_basis_expanded + torch.sum(bs_facial.unsqueeze(3).unsqueeze(4) * self.V_deltas, axis=2)
+                    V_pred_face = torch.sum(bs_pred_face.unsqueeze(3).unsqueeze(4) * self.V_deltas, axis=2)
+                    V_gt_face = torch.sum(bs_facial.unsqueeze(3).unsqueeze(4) * self.V_deltas, axis=2)
 
                     target_loss = self.target_loss_function(V_pred_face, V_gt_face)
                     V_smooth_loss = 1 - self.smooth_loss_function(V_pred_face[:,:-1,:], V_pred_face[:,1:,:]).mean()

@@ -49,7 +49,7 @@ grad_norm: 200
 # logging/configs for gesturegen
 random_seed: 2024
 batch_size: 256
-epochs: 500
+epochs: 1000
 log_period: 50
 val_period: 600
 save_ckpt: True
@@ -60,6 +60,8 @@ target_weight: 1.5
 expressive_weight: 0.5
 smooth_weight: 0.5
 predict_flame: False
+bs2vertices: False
+no_text: True
 
 wandb_project: multicontextnet
 wandb_group: spam

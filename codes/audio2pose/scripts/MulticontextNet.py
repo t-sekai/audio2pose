@@ -181,7 +181,10 @@ class FaceGenerator(nn.Module):
         self.emotion_f = args.emotion_f
         self.emotion_dims = args.emotion_dims
         self.audio_f = args.audio_f
-        self.word_f = args.word_f
+        if args.no_text:
+            self.word_f = 0
+        else:
+            self.word_f = args.word_f
         if self.predict_flame:
             self.facial_dims = 111 # 100 flame expressions + 3 flame jaw + 8 bs eye movement
             self.in_size = self.audio_f + self.word_f + self.facial_dims
@@ -287,7 +290,10 @@ class FaceGenerator(nn.Module):
 class GestureGen(FaceGenerator):
     def __init__(self, args):
         super().__init__(args) 
-        self.audio_fusion_dim = self.audio_f+self.speaker_f+self.emotion_f+self.word_f
+        if args.no_text:
+            self.audio_fusion_dim = self.audio_f+self.speaker_f+self.emotion_f
+        else:
+            self.audio_fusion_dim = self.audio_f+self.speaker_f+self.emotion_f+self.word_f
         self.audio_fusion = nn.Sequential(
             nn.Linear(self.audio_fusion_dim, self.hidden_size//2),
             nn.LeakyReLU(0.1, True),
@@ -325,8 +331,12 @@ class GestureGen(FaceGenerator):
                 if (audio_feat_seq.shape[1] != text_feat_seq.shape[1]):
                     min_gap = text_feat_seq.shape[1] - audio_feat_seq.shape[1]
                     audio_feat_seq = torch.cat((audio_feat_seq, audio_feat_seq[:,-min_gap:, :]),1)
-                
-            audio_fusion_seq = self.audio_fusion(torch.cat((audio_feat_seq, emo_feat_seq, speaker_feat_seq, text_feat_seq), dim=2).reshape(-1, self.audio_fusion_dim))
+                audio_fusion_seq = self.audio_fusion(torch.cat((audio_feat_seq, emo_feat_seq, speaker_feat_seq, text_feat_seq), dim=2).reshape(-1, self.audio_fusion_dim))
+            else:
+                if (audio_feat_seq.shape[1] != emo_feat_seq.shape[1]):
+                    min_gap = emo_feat_seq.shape[1] - audio_feat_seq.shape[1]
+                    audio_feat_seq = torch.cat((audio_feat_seq, audio_feat_seq[:,-min_gap:, :]),1)
+                audio_fusion_seq = self.audio_fusion(torch.cat((audio_feat_seq, emo_feat_seq, speaker_feat_seq), dim=2).reshape(-1, self.audio_fusion_dim))
             audio_feat_seq = audio_fusion_seq.reshape(*audio_feat_seq.shape)
             in_data = torch.cat((in_data, audio_feat_seq), 2) if in_data is not None else audio_feat_seq
 

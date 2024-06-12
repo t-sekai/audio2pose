@@ -30,6 +30,3 @@ outputs/
 
 archive
 outputs
-
-**/__pycache__/
-*/**/__pycache__/

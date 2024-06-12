@@ -36,7 +36,7 @@ def parse_args():
     parser.add("--wandb_group", default="default", type=str)
     parser.add("--wandb_entity", default="hm_gesture", type=str)
     parser.add("--disable_wandb", default=True, type=str2bool)
-    parser.add("--log_period", default=200, type=int)
+    parser.add("--log_period", default=10, type=int)
     parser.add("--save_period", default=100, type=int)
     parser.add("--save_ckpt", default=True, type=str2bool)
     parser.add("--ckpt_dir", default="ckpt_model/", type=str)
@@ -189,8 +189,8 @@ def parse_args():
     parser.add("--ddp", default=False, type=str2bool)
     #parser.add("--world_size")
     # logging
-    # parser.add("--log_period", default=10, type=int)
-    # parser.add("--test_period", default=20, type=int)
+    #parser.add("--log_period", default=10, type=int)
+    parser.add("--test_period", default=20, type=int)
 
     args = parser.parse_args()
     idc = 0

@@ -558,13 +558,16 @@ def result2target_vis(pose_version, res_bvhlist, save_path, demo_name, verbose=T
         pass
     
     bvh_files_dirs = sorted(glob.glob(f'{res_bvhlist}*.bvh'), key=str)
+    # print(bvh_files_dirs)
     counter = 0
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     for i, bvh_file_dir in enumerate(bvh_files_dirs):
-        short_name = bvh_file_dir.split("/")[-1][11:]
-        #print(short_name)
+        # print(bvh_file_dir)
+        short_name = bvh_file_dir.split("\\")[-1][11:]
+        # print(short_name)
         wirte_file =  open(os.path.join(save_path, f'res_{short_name}'),'w+')
+        # print(demo_name, short_name)
         with open(f"{demo_name}{short_name}",'r') as pose_data_pre:
             pose_data_pre_file = pose_data_pre.readlines()
             for j, line in enumerate(pose_data_pre_file[0:file_content_length]):

@@ -130,9 +130,11 @@ class BaseTrainer(object):
                              broadcast_buffers=False, find_unused_parameters=False)
         else: 
             self.model = torch.nn.DataParallel(getattr(model_module, args.g_name)(args), args.gpus).cuda()
+        
         if self.rank == 0:
             logger.info(self.model)
-            wandb.watch(self.model)
+            if wandb.run is not None:
+                wandb.watch(self.model)
             logger.info(f"init {args.g_name} success")
         
         if args.d_name is not None:
@@ -145,7 +147,8 @@ class BaseTrainer(object):
                 self.d_model = torch.nn.DataParallel(getattr(model_module, args.d_name)(args), args.gpus).cuda()
             if self.rank == 0:
                 logger.info(self.d_model)
-                wandb.watch(self.d_model)
+                if wandb.run is not None:
+                    wandb.watch(self.d_model)
                 logger.info(f"init {args.d_name} success")
             self.opt_d = create_optimizer(args, self.d_model, lr_weight=args.d_lr_weight)
             self.opt_d_s = create_scheduler(args, self.opt_d)
@@ -166,7 +169,8 @@ class BaseTrainer(object):
                 self.eval_model = torch.nn.DataParallel(self.eval_model, args.gpus).cuda()    
             if self.rank == 0:
                 logger.info(self.eval_model)
-                wandb.watch(self.eval_model)
+                if wandb.run is not None:
+                    wandb.watch(self.eval_model)
                 logger.info(f"init {args.e_name} success")
         
         self.opt = create_optimizer(args, self.model)
@@ -179,11 +183,13 @@ class BaseTrainer(object):
                 if "val" not in name:
                     if loss_meter.count > 0:
                         pstr += "{}: {:.3f}\t".format(loss_meter.name, loss_meter.avg)
-                        wandb.log({loss_meter.name: loss_meter.avg}, step=epoch*self.train_length+its)
+                        if wandb.run is not None:
+                            wandb.log({loss_meter.name: loss_meter.avg}, step=epoch*self.train_length+its)
                         loss_meter.reset()
             pstr += "glr: {:.1e}\t".format(lr_g)
             pstr += "dlr: {:.1e}\t".format(lr_d)
-            wandb.log({'glr': lr_g, 'dlr': lr_d}, step=epoch*self.train_length+its)
+            if wandb.run is not None:
+                wandb.log({'glr': lr_g, 'dlr': lr_d}, step=epoch*self.train_length+its)
             pstr += "dtime: %04d\t"%(t_data*1000)        
             pstr += "ntime: %04d\t"%(t_train*1000)
             pstr += "mem: {:.2f} ".format(mem_cost*self.gpus)
@@ -198,7 +204,8 @@ class BaseTrainer(object):
                 if "val" in name:
                     if metric.count > 0:
                         pstr_curr += "{}: {:.3f}     \t".format(metric.name, metric.avg)
-                        wandb.log({metric.name: metric.avg}, step=epoch*self.train_length)
+                        if wandb.run is not None:
+                            wandb.log({metric.name: metric.avg}, step=epoch*self.train_length)
                         if metric.avg < self.best_epochs[metric.name][0]:
                             self.best_epochs[metric.name][0] = metric.avg
                             self.best_epochs[metric.name][1] = epoch
@@ -213,7 +220,7 @@ class BaseTrainer(object):
 def main_worker(rank, world_size, args):
     if not sys.warnoptions:
         warnings.simplefilter("ignore")
-    dist.init_process_group("nccl", rank=rank, world_size=world_size)
+    dist.init_process_group("gloo", rank=rank, world_size=world_size)
         
     logger_tools.set_args_and_logger(args, rank)
     other_tools.set_random_seed(args)
@@ -221,7 +228,10 @@ def main_worker(rank, world_size, args):
       
     # return one intance of trainer
     trainer = __import__(f"{args.trainer}_trainer", fromlist=["something"]).CustomTrainer(args) if args.trainer != "base" else BaseTrainer(args) 
-     
+    
+    # TODO: turn this into a config argument?
+    if True:
+        other_tools.load_checkpoints(trainer.model, f"{args.root_path}/outputs/audio2pose/custom/0609_110652_camn_beat_4english_15_141/last_275.bin")
     logger.info("Training from starch ...")          
     start_time = time.time()
     for epoch in range(args.epochs):
@@ -230,14 +240,17 @@ def main_worker(rank, world_size, args):
         epoch_time = time.time()-start_time
         if trainer.rank == 0: logger.info("Time info >>>>  elapsed: %.2f mins\t"%(epoch_time/60)+"remain: %.2f mins"%((args.epochs/(epoch+1e-7)-1)*epoch_time/60))
         if trainer.ddp: trainer.train_loader.sampler.set_epoch(epoch)
-        trainer.train(epoch) 
+        trainer.train(epoch)
+        if (epoch+1) % 25 == 0:
+            other_tools.save_checkpoints(os.path.join(trainer.checkpoint_path, f"last_{epoch+1}.bin"), trainer.model, opt=None, epoch=None, lrs=None)
         if (epoch+1) % args.test_period == 0:
             if rank == 0:
                 trainer.test(epoch)
                 other_tools.save_checkpoints(os.path.join(trainer.checkpoint_path, f"last_{epoch}.bin"), trainer.model, opt=None, epoch=None, lrs=None)
             
-    for k, v in trainer.best_epochs.items():
-        wandb.log({f"{k}_best": v[0], f"{k}_epoch": v[1]})
+    if wandb.run is not None:
+        for k, v in trainer.best_epochs.items():
+            wandb.log({f"{k}_best": v[0], f"{k}_epoch": v[1]})
     
     if rank == 0:
         wandb.finish()

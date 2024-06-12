@@ -146,6 +146,8 @@ split_rule_english = {
 9. run ```python test.py -c ./configs/camn_4english_15_141.yaml``` for inference.
 10. load ```./outputs/audio2pose/custom/exp_name/epoch_number/xxx.bvh``` into blender to visualize the test results.
 
+<!-- Run `python test_dataset.py -c ./configs/` -->
+
 ### From data in other dataset (e.g. Trinity) 
 - refer `train and test CaMN` for bvh cache
 - remove modalities, e.g., remove facial expressions.

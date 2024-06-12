@@ -24,7 +24,8 @@ from optimizers.loss_factory import get_loss_func
 class CustomTrainer(train.BaseTrainer):
     def __init__(self, args):
         super().__init__(args)
-        self.word_rep = args.word_rep
+        # self.word_rep = args.word_rep
+        self.word_rep = None
         self.emo_rep = args.emo_rep
         self.sem_rep = args.sem_rep
         self.speaker_id = args.speaker_id

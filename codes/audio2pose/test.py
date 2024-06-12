@@ -159,6 +159,7 @@ class BaseTrainer(object):
         t_end = 500
         align = 0 
         self.model.eval()
+        print(self.test_demo)
         with torch.no_grad():
             if not os.path.exists(results_save_path):
                 os.makedirs(results_save_path)
@@ -213,6 +214,7 @@ class BaseTrainer(object):
                 beat_right_arm, beat_right_shoulder, beat_right_wrist, beat_left_arm, beat_left_shoulder, beat_left_wrist = self.alignmenter.load_pose(out_final, t_start, t_end, self.pose_fps, True)
                 align += self.alignmenter.calculate_align(onset_raw, onset_bt, onset_bt_rms, beat_right_arm, beat_right_shoulder, beat_right_wrist, beat_left_arm, beat_left_shoulder, beat_left_wrist, self.pose_fps)
              
+                print(f"{results_save_path}result_raw_{test_seq_list[its]}")
                 with open(f"{results_save_path}result_raw_{test_seq_list[its]}", 'w+') as f_real:
                     for line_id in range(out_final.shape[0]): #,args.pre_frames, args.pose_length
                         line_data = np.array2string(out_final[line_id], max_line_width=np.inf, precision=6, suppress_small=False, separator=' ')

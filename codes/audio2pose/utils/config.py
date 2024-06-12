@@ -49,6 +49,9 @@ def parse_args():
     parser.add("--lang_model_path", default='/datasets/beat_cache/beat_4english_15_141/vocab.pkl', type=str)
     parser.add("--no_text", default=False, type=str2bool)
     parser.add("--bs2vertices", default=False, type=str2bool)
+    parser.add("--normalize_face", default=False, type=str2bool)
+    parser.add("--continue_training", default=False, type=str2bool)
+    parser.add("--pretrained_model", default="", type=str)
     
     # ------------- path and save name ---------------- #
     parser.add("--is_train", default=True, type=str2bool)

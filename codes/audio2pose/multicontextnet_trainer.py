@@ -37,6 +37,7 @@ class Trainer():
         self.flame_to_bs = self.bs_to_flame.pinverse()
         self.predict_flame = args.predict_flame
         self.bs2vertices = args.bs2vertices
+        self.normalize_face = args.normalize_face
         self.pre_frames = args.pre_frames
 
         # Set up blendshape to vertices
@@ -110,7 +111,11 @@ class Trainer():
         
         for _, data in enumerate(val_loader):
             in_audio = data['audio']
-            bs_facial = data['facial'] * self.std_facial + self.mean_facial
+            if self.normalize_face:
+                bs_facial = data['facial']
+            else:
+                bs_facial = data['facial'] * self.std_facial + self.mean_facial
+            
             in_id = data["id"]
             if self.no_text == False:
                 in_word = data["word"]
@@ -189,7 +194,10 @@ class Trainer():
             for it, data in enumerate(self.train_loader):
                 self.model.train()
                 in_audio = data['audio']
-                bs_facial = data['facial'] * self.std_facial + self.mean_facial
+                if self.normalize_face:
+                    bs_facial = data['facial']
+                else:
+                    bs_facial = data['facial'] * self.std_facial + self.mean_facial
                 in_id = data["id"]
                 if self.no_text == False:
                     in_word = data["word"]

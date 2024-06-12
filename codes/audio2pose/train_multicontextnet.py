@@ -33,6 +33,8 @@ if __name__ == '__main__':
     assert torch.cuda.is_available() == True
    
     model = GestureGen(args)
+    if args.continue_training:
+          model.load_state_dict(torch.load(args.pretrained_model))
 
     trainer = Trainer(args, device, train_data, val_data, model, logger)
 

@@ -33,14 +33,14 @@ spec:
       volumeMounts:
         # - name: data
         #   mountPath: /data
-        - name: cyberarch
-          mountPath: /cyberarch
+        - name: tsc003-beat-vol
+          mountPath: /tsc003-beat-vol
   volumes:
     # - name: data
     #   emptyDir: {}
-    - name: cyberarch
+    - name: tsc003-beat-vol
       persistentVolumeClaim:
-        claimName: cyberarch
+        claimName: tsc003-beat-vol
   nodeSelector:
     nautilus.io/disktype: nvme
   restartPolicy: Never

@@ -79,15 +79,20 @@ def load_checkpoints(model, save_path, load_name='model'):
     new_weights = OrderedDict()
     flag=False
     for k, v in states['model_state'].items():
-        if "module" not in k:
-            break
-        else:
-            new_weights[k[7:]]=v
-            flag=True
-    if flag: 
-        model.load_state_dict(new_weights)
-    else:
-        model.load_state_dict(states['model_state'])
+        # if "pose_encoder" in k or "decoder" in k or :
+        #     new_weights[k[7:]]=v
+        # else:
+        #     new_weights[k]=v
+        new_weights[k[7:]] = v
+    #     if "module" not in k:
+    #         break
+    #     else:
+    #         new_weights[k[7:]]=v
+    #         flag=True
+    # if flag: 
+    model.load_state_dict(new_weights)
+    # else:
+    #     model.load_state_dict(states['model_state'])
     logger.info(f"load self-pretrained checkpoints for {load_name}")
 
 

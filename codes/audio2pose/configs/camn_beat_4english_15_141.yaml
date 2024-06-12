@@ -43,5 +43,5 @@ trainer: camn
 kld_weight: 0.0
 div_reg_weight: 0.0
 grad_norm: 200
-epochs: 100
+epochs: 500
 test_period: 99

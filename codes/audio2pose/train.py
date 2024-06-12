@@ -130,6 +130,7 @@ class BaseTrainer(object):
                              broadcast_buffers=False, find_unused_parameters=False)
         else: 
             self.model = torch.nn.DataParallel(getattr(model_module, args.g_name)(args), args.gpus).cuda()
+        
         if self.rank == 0:
             logger.info(self.model)
             if wandb.run is not None:
@@ -227,7 +228,10 @@ def main_worker(rank, world_size, args):
       
     # return one intance of trainer
     trainer = __import__(f"{args.trainer}_trainer", fromlist=["something"]).CustomTrainer(args) if args.trainer != "base" else BaseTrainer(args) 
-     
+    
+    # TODO: turn this into a config argument?
+    if True:
+        other_tools.load_checkpoints(trainer.model, f"{args.root_path}/outputs/audio2pose/custom/0609_110652_camn_beat_4english_15_141/last_275.bin")
     logger.info("Training from starch ...")          
     start_time = time.time()
     for epoch in range(args.epochs):
@@ -237,7 +241,8 @@ def main_worker(rank, world_size, args):
         if trainer.rank == 0: logger.info("Time info >>>>  elapsed: %.2f mins\t"%(epoch_time/60)+"remain: %.2f mins"%((args.epochs/(epoch+1e-7)-1)*epoch_time/60))
         if trainer.ddp: trainer.train_loader.sampler.set_epoch(epoch)
         trainer.train(epoch)
-        other_tools.save_checkpoints(os.path.join(trainer.checkpoint_path, f"last_epoch.bin"), trainer.model, opt=None, epoch=None, lrs=None)
+        if (epoch+1) % 25 == 0:
+            other_tools.save_checkpoints(os.path.join(trainer.checkpoint_path, f"last_{epoch+1}.bin"), trainer.model, opt=None, epoch=None, lrs=None)
         if (epoch+1) % args.test_period == 0:
             if rank == 0:
                 trainer.test(epoch)

@@ -334,6 +334,10 @@ class GestureGenUI():
             self.start_time = time.time()
             self.recording = True
             self.start_button.config(text="Stop Recording", bg="#C4E4F4", fg="black")
+            self.to_ue5.place_forget()
+            self.to_blender.place_forget()
+            self.animate_label.place_forget()
+            
             self.audio_data = sd.rec(120 * sd.default.samplerate, samplerate=sd.default.samplerate, channels=2, dtype=np.float32)
             self.start_timer()
         else:

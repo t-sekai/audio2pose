@@ -30,4 +30,6 @@ outputs/
 
 archive
 outputs
-codes/audio2pose/ui_src/recording.wav
+codes/audio2pose/ui_src/*.wav
+codes/audio2pose/ui_src/*.bvh
+codes/audio2pose/ui_src/*.json

@@ -7,7 +7,7 @@ import trimesh
 from blendshapes import BLENDSHAPE_NAMES
 
 class Trainer():
-    def __init__(self, args, device, train_data, val_data, model, logger):
+    def __init__(self, args, device, train_data, val_data, model, d_model, logger):
         # Set up data loading
         self.mean_facial = torch.from_numpy(np.load(args.root_path+args.mean_pose_path+f"{args.facial_rep}/json_mean.npy")).float()
         self.std_facial = torch.from_numpy(np.load(args.root_path+args.mean_pose_path+f"{args.facial_rep}/json_std.npy")).float()
@@ -26,8 +26,10 @@ class Trainer():
 
         # Set up model and loss functions
         self.no_text = args.no_text
-        self.model = model.to(device)
+        self.model = model.to(device) # generative model
+        self.d_model = d_model.to(device) # discriminator
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=1e-4)
+        self.d_optimizer = torch.optim.Adam(self.d_model.parameters(), lr=1e-4)
         self.target_loss_function = torch.nn.HuberLoss()
         self.smooth_loss_function = torch.nn.CosineSimilarity(dim=2)
         self.mse_loss_function = torch.nn.MSELoss()
@@ -52,9 +54,11 @@ class Trainer():
         self.target_weight = args.target_weight
         self.smooth_weight = args.smooth_weight
         self.expressive_weight = args.expressive_weight
+        self.adv_weight = args.adv_weight
         self.val_size = args.val_size
         self.log_period = args.log_period
         self.val_period = args.val_period
+        self.no_adv_epochs = args.no_adv_epochs
 
         # Set up logging
         self.logger = logger
@@ -82,10 +86,13 @@ class Trainer():
             total_time=time() - self._start_time,
         )
 
-    def save_checkpoint(self, name):
+    def save_checkpoint(self, name, use_adv):
         if self.save_ckpt:
             pth_path = os.path.join(self.ckpt_path, f'multicontextnet-{name}.pth')
             torch.save(self.model.state_dict(), pth_path)
+            if use_adv:
+                pth_path = os.path.join(self.ckpt_path, f'd-{name}.pth')
+                torch.save(self.model.state_dict(), pth_path)
     
     def expressive_loss_function(self, output, target): # max squared error over blendshape for each frame, then take the mean
         loss = torch.mean(torch.max((output - target) ** 2, dim=-1).values)
@@ -190,7 +197,9 @@ class Trainer():
                 }
 
     def train(self):
+        train_metrics = {}
         for self._ep_idx in range(self.epochs):
+            use_adv = bool(self._ep_idx>=self.no_adv_epochs)
             for it, data in enumerate(self.train_loader):
                 self.model.train()
                 in_audio = data['audio']
@@ -237,6 +246,19 @@ class Trainer():
                     in_pre_face[:, 0:self.pre_frames, :-1] = bs_facial[:, 0:self.pre_frames]
                     in_pre_face[:, 0:self.pre_frames, -1] = 1 
 
+                    # discriminator training
+                    if use_adv:
+                        self.d_optimizer.zero_grad()
+                        if self.no_text:
+                            bs_pred_face = self.model(in_pre_face,in_audio=in_audio, in_id=in_id, in_emo=in_emo)
+                        else:
+                            bs_pred_face = self.model(in_pre_face,in_audio=in_audio,in_text=in_word, in_id=in_id, in_emo=in_emo)
+                        out_d_fake = self.d_model(bs_pred_face)
+                        out_d_real = self.d_model(bs_facial)
+                        d_loss = torch.sum(-torch.mean(torch.log(out_d_real + 1e-8) + torch.log(1 - out_d_fake + 1e-8)))
+                        d_loss.backward()
+                        self.d_optimizer.step()
+
                     self.optimizer.zero_grad()
                     if self.no_text:
                         bs_pred_face = self.model(in_pre_face,in_audio=in_audio, in_id=in_id, in_emo=in_emo)
@@ -263,24 +285,36 @@ class Trainer():
                             self.logger.log(train_metrics, 'train')
                             print(f'[{self._ep_idx}][{it}/{len(self.train_loader)}]: [train] [target loss]: {train_metrics["target_loss"]} [vertices smooth loss]: {train_metrics["V_smooth_loss"]}')
                     else:
+                        # generator training
+                        adv_loss = None
                         target_loss = self.target_loss_function(bs_pred_face, bs_facial)
                         bs_expressive_loss = self.expressive_loss_function(bs_pred_face, bs_facial)
                         bs_smooth_loss = 1 - self.smooth_loss_function(bs_pred_face[:,:-1,:], bs_pred_face[:,1:,:]).mean()
-                        loss = self.target_weight * target_loss  + self.smooth_weight * bs_smooth_loss + self.expressive_weight * bs_expressive_loss
+                        loss = self.target_weight * target_loss + self.smooth_weight * bs_smooth_loss + self.expressive_weight * bs_expressive_loss
+
+                        if use_adv:
+                            dis_out = self.d_model(bs_pred_face)
+                            adv_loss = -torch.mean(torch.log(dis_out + 1e-8)) # self.adv_loss(out_d_fake, real_gt) # here 1 is real
+                            loss += self.adv_weight * adv_loss
                         
                         loss.backward()
                         self.optimizer.step()
 
                         if it % self.log_period == 0:
-                            train_metrics = {
+                            train_metrics.update({
                                 "target_loss": float(target_loss.item()),
                                 "smooth_loss": float(bs_smooth_loss.item()),
                                 "expressive_loss": float(bs_expressive_loss.item()),
-                            }
+                            })
+                            if use_adv:
+                                train_metrics["dis_loss"] = float(d_loss.item())
+                                train_metrics["adversarial_loss"] = float(adv_loss.item())
+                            else:
+                                train_metrics["dis_loss"] = None
+                                train_metrics["adversarial_loss"] = None
                             train_metrics.update(self.common_metrics())
                             self.logger.log(train_metrics, 'train')
-                            print(f'[{self._ep_idx}][{it}/{len(self.train_loader)}]: [train] [target loss]: {train_metrics["target_loss"]} [bs smooth loss]: {train_metrics["smooth_loss"]} [bs expressive loss]: {train_metrics["expressive_loss"]}')
-
+                            print(f'[{self._ep_idx}][{it}/{len(self.train_loader)}]: [train] [target loss]: {train_metrics["target_loss"]} [adv loss]: {train_metrics["adversarial_loss"]} [smooth loss]: {train_metrics["smooth_loss"]} [exp loss]: {train_metrics["expressive_loss"]} [dis loss]: {train_metrics["dis_loss"]}')
                 if it % self.val_period == 0:
                     val_metrics = self.val()
                     val_metrics.update(self.common_metrics())
@@ -295,5 +329,5 @@ class Trainer():
 
                 self._iter += 1
             if (self._ep_idx+1) % self.save_period == 0:
-                self.save_checkpoint(str(self._ep_idx+1))
+                self.save_checkpoint(str(self._ep_idx+1), use_adv)
         self.logger.finish()

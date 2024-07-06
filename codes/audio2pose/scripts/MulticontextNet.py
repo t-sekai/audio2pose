@@ -348,7 +348,47 @@ class GestureGen(FaceGenerator):
         decoder_outputs = output.reshape(in_data.shape[0], in_data.shape[1], -1)
         return decoder_outputs
 
-    
+class ConvDiscriminator(nn.Module):
+    def __init__(self, args):
+        super().__init__()
+        self.input_size = args.facial_dims
+
+        self.hidden_size = 64
+        self.pre_conv = nn.Sequential(
+            nn.Conv1d(self.input_size, 16, 3),
+            nn.BatchNorm1d(16),
+            nn.LeakyReLU(0.1, True),
+            nn.Conv1d(16, 8, 3),
+            nn.BatchNorm1d(8),
+            nn.LeakyReLU(0.1, True),
+            nn.Conv1d(8, 8, 3),
+        )
+
+        self.GRU = nn.GRU(8, hidden_size=self.hidden_size, num_layers=4, bidirectional=True,
+                          dropout=0.3, batch_first=True)
+        self.out = nn.Linear(self.hidden_size, 1)
+        self.out2 = nn.Linear(34-6, 1)
+       
+        self.do_flatten_parameters = False
+        if torch.cuda.device_count() > 1:
+            self.do_flatten_parameters = True
+
+    def forward(self, poses):
+        decoder_hidden = None
+        if self.do_flatten_parameters:
+            self.LSTM.flatten_parameters()
+        poses = poses.transpose(1, 2)
+        feat = self.pre_conv(poses)
+        feat = feat.transpose(1, 2)
+        output, decoder_hidden = self.GRU(feat, decoder_hidden)
+        output = output[:, :, :self.hidden_size] + output[:, :, self.hidden_size:]  
+        batch_size = poses.shape[0]
+        output = output.contiguous().view(-1, output.shape[2])
+        output = self.out(output)  # apply linear to every output
+        output = output.view(batch_size, -1)
+        output = self.out2(output)
+        output = torch.sigmoid(output)
+        return output 
 
 # if __name__ == "__main__":
 #     from Dataset import a2bsDataset

@@ -39,7 +39,6 @@ eval_model: motion_autoencoder
 e_name: HalfEmbeddingNet
 vae_length: 300
 rec_weight: 500
-adv_weight: 0.1
 trainer: camn
 kld_weight: 0.0
 div_reg_weight: 0.0
@@ -57,17 +56,18 @@ ckpt_dir: ckpt_model/
 save_period: 100 # epochs
 val_size: 50
 target_weight: 1.5
-expressive_weight: 0.5
+expressive_weight: 0.025
 smooth_weight: 0.5
+adv_weight: 1
 predict_flame: False
 bs2vertices: False
 no_text: True
 normalize_face: True
 
-continue_training: True
+continue_training: False
 pretrained_model: ckpt_model/multicontextnet-b_no_text_normalized-2024/multicontextnet-300.pth
 
 wandb_project: multicontextnet
 wandb_group: spam
-wandb_entity: hm_gesture
+wandb_entity: hm_gestur
 disable_wandb: True

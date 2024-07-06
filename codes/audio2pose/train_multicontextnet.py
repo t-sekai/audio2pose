@@ -7,7 +7,7 @@ import os
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
-from scripts.MulticontextNet import GestureGen
+from scripts.MulticontextNet import GestureGen, ConvDiscriminator
 from scripts.Logger import Logger
 import wandb
 import random
@@ -33,10 +33,12 @@ if __name__ == '__main__':
     assert torch.cuda.is_available() == True
    
     model = GestureGen(args)
+    d_model = ConvDiscriminator(args)
+
     if args.continue_training:
           model.load_state_dict(torch.load(args.pretrained_model))
 
-    trainer = Trainer(args, device, train_data, val_data, model, logger)
+    trainer = Trainer(args, device, train_data, val_data, model, d_model, logger)
 
     trainer.train()
 

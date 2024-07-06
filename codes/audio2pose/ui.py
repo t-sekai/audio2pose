@@ -245,7 +245,7 @@ class HMGestureGen():
         udp_thread = threading.Thread(target=self.send_udp, args=(self.pred_facial, init_time, 0.5))
         udp_thread.daemon = True
 
-        audio_thread = threading.Thread(target=self.play_audio, args=(self.audio_data, self.orig_sr, init_time+0.17))
+        audio_thread = threading.Thread(target=self.play_audio, args=(self.audio_data, self.orig_sr, init_time-0.2))
         audio_thread.daemon = True
 
         udp_thread.start()
@@ -270,7 +270,7 @@ class GestureGenUI():
         self.root = tk.Tk()
         self.root.geometry("600x600")
         self.root.resizable(False, False)
-        self.root.title("Voice Recorder")
+        self.root.title("HM GestureGen") 
         self.root.config(bg="#F6FCFE")
 
         # icon
@@ -287,12 +287,12 @@ class GestureGenUI():
 
         # title
         label = tk.Label(self.root, text="GestureGen", font=custom_font, bg="#F6FCFE",fg="#3B3024" )
-        label.place(relx=0.5, rely=0.02, anchor="n")
+        label.place(relx=0.5, rely=0.05, anchor="n")
 
         # start record button
         self.start_button = tk.Button(self.root, text="Start Recording",font=(custom_font.actual()['family'], 20), command=self.toggle_recording,\
                                 bg="#0B3353",fg="white", width=18)
-        self.start_button.place(relx=0.2,rely=0.5)
+        self.start_button.place(relx=0.25,rely=0.5)
 
         self.animate_label = tk.Label(self.root, text="Animate on", font=(custom_font.actual()['family'], 15, 'bold'), bg="#F6FCFE",fg="#3B3024" )
 
@@ -311,13 +311,13 @@ class GestureGenUI():
 
     def start(self):      
         logo = tk.Button(self.root, image=self.logo_image, bg="#F6FCFE", highlightthickness = 0, bd = 0, command=self.load_demo)
-        logo.place(relx=0.5, rely=0.125, anchor="n")  
+        logo.place(relx=0.5, rely=0.15, anchor="n")  
         self.root.mainloop()
     
     def load_demo(self):
         self.gesturegen.load_gandhi_speech()
         self.gesturegen.predict(predict_pose=True)
-        self.to_ue5.place(relx=0.2,rely=0.7)
+        self.to_ue5.place(relx=0.25,rely=0.7)
         self.to_blender.place(relx=0.52,rely=0.7)
         self.animate_label.place(relx=0.5, rely=0.625, anchor="n")
 
@@ -358,7 +358,7 @@ class GestureGenUI():
                 self.gesturegen.load_recording(record_file_path)
                 self.gesturegen.predict(predict_pose=True)
 
-                self.to_ue5.place(relx=0.2,rely=0.7)
+                self.to_ue5.place(relx=0.25,rely=0.7)
                 self.to_blender.place(relx=0.52,rely=0.7)
                 self.animate_label.place(relx=0.5, rely=0.625, anchor="n")
 
@@ -370,7 +370,7 @@ class GestureGenUI():
             self.timer_label.after(1000, self.start_timer)
 
 if __name__ == '__main__':
-    gesturegen = HMGestureGen(blender_load_path='S:/rendervideo_mod/rendervideo', template_speaker=17)
+    gesturegen = HMGestureGen(blender_load_path='D:/gesturegen/rendervideo_mod/rendervideo', template_speaker=17)
     ui = GestureGenUI(gesturegen)
     ui.init_ui()
     ui.start()

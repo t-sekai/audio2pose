@@ -5,6 +5,8 @@ import os
 
 import trimesh
 from blendshapes import BLENDSHAPE_NAMES
+from optimizers.optim_factory import create_optimizer
+from optimizers.scheduler_factory import create_scheduler
 
 class Trainer():
     def __init__(self, args, device, train_data, val_data, model, d_model, logger):
@@ -27,9 +29,11 @@ class Trainer():
         # Set up model and loss functions
         self.no_text = args.no_text
         self.model = model.to(device) # generative model
+        self.optimizer = create_optimizer(args, self.model)
+        self.optimizer_s = create_scheduler(args, self.optimizer)
         self.d_model = d_model.to(device) # discriminator
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=1e-4)
-        self.d_optimizer = torch.optim.Adam(self.d_model.parameters(), lr=1e-4)
+        self.d_optimizer = create_optimizer(args, self.d_model, lr_weight=args.d_lr_weight)
+        self.d_optimizer_s = create_scheduler(args, self.d_optimizer)
         self.target_loss_function = torch.nn.HuberLoss()
         self.smooth_loss_function = torch.nn.CosineSimilarity(dim=2)
         self.mse_loss_function = torch.nn.MSELoss()
@@ -328,6 +332,8 @@ class Trainer():
                             print(f'[{self._ep_idx}][{it}/{len(self.train_loader)}]: [val] [target loss]: {val_metrics["target_loss"]} [bs smooth loss]: {val_metrics["smooth_loss"]} [bs expressive loss]: {val_metrics["expressive_loss"]}')
 
                 self._iter += 1
+            self.optimizer_s.step(self._ep_idx)
+            self.d_optimizer_s.step(self._ep_idx)
             if (self._ep_idx+1) % self.save_period == 0:
                 self.save_checkpoint(str(self._ep_idx+1), use_adv)
         self.logger.finish()

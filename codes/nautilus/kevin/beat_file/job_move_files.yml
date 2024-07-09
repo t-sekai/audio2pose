@@ -16,32 +16,32 @@ spec:
                 - -c
                 - |
                   source /usr/local/bin/_activate_current_env.sh
-                  rsync -avAXEWSlHh /tsc003-beat-vol/audio2pose/ /cyberarch/gesturegen/ --no-compress --info=progress2
+                  rsync -avAXEWSlHh /tsc003-beat-vol/audio2pose/ /tsc003-gesturegen-vol/ --no-compress --info=progress2
           resources:
             requests:
-              cpu: "5"
-              memory: "5Gi"
+              cpu: "10"
+              memory: "10Gi"
               #nvidia.com/gpu: "1"
               ephemeral-storage: 50Gi
 
             limits:
-              cpu: "5"
-              memory: "5Gi"
+              cpu: "10"
+              memory: "10Gi"
               #nvidia.com/gpu: "1"
               ephemeral-storage: 50Gi
           volumeMounts:
             # - name: data
             #   mountPath: /data
-            - name: cyberarch
-              mountPath: /cyberarch
+            - name: tsc003-gesturegen-vol
+              mountPath: /tsc003-gesturegen-vol
             - name: tsc003-beat-vol
               mountPath: /tsc003-beat-vol
       volumes:
         # - name: data
         #   emptyDir: {}
-        - name: cyberarch
+        - name: tsc003-gesturegen-vol
           persistentVolumeClaim:
-            claimName: cyberarch
+            claimName: tsc003-gesturegen-vol
         - name: tsc003-beat-vol
           persistentVolumeClaim:
             claimName: tsc003-beat-vol

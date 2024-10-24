@@ -7,8 +7,8 @@ import os
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
-from scripts.MulticontextNet import GestureGen, ConvDiscriminator
-from scripts.Logger import Logger
+from facial_models.MulticontextNet import GestureGen, ConvDiscriminator
+from facial_models.Logger import Logger
 import wandb
 import random
 import uuid

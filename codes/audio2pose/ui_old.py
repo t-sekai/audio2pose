@@ -17,8 +17,8 @@ from dataloaders.build_vocab import Vocab
 import pickle
 import os
 from utils.other_tools import load_checkpoints
-from models.camn import CaMN
-from scripts.MulticontextNet import GestureGen
+from gesture_models.camn import CaMN
+from facial_models.MulticontextNet import GestureGen
 from joints_list import JOINTS_LIST
 from blendshapes import BLENDSHAPE_NAMES
 import json

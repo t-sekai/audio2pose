@@ -120,7 +120,7 @@ class BaseTrainer(object):
         )
         logger.info(f"Init test dataloader success")
         
-        model_module = __import__(f"models.{args.model}", fromlist=["something"])
+        model_module = __import__(f"gesture_models.{args.model}", fromlist=["something"])
         
         if self.ddp:
             self.model = getattr(model_module, args.g_name)(args).to(self.rank)
@@ -154,7 +154,7 @@ class BaseTrainer(object):
             self.opt_d_s = create_scheduler(args, self.opt_d)
             
         if args.e_name is not None:
-            eval_model_module = __import__(f"models.{args.eval_model}", fromlist=["something"])
+            eval_model_module = __import__(f"gesture_models.{args.eval_model}", fromlist=["something"])
             if self.ddp:
                 self.eval_model = getattr(eval_model_module, args.e_name)(args).to(self.rank)
             else:

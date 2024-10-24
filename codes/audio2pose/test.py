@@ -106,7 +106,7 @@ class BaseTrainer(object):
         )
         logger.info(f"Init test dataloader success")
         
-        model_module = __import__(f"models.{args.model}", fromlist=["something"])
+        model_module = __import__(f"gesture_models.{args.model}", fromlist=["something"])
         self.model = getattr(model_module, args.g_name)(args)
         other_tools.load_checkpoints(self.model, args.root_path+args.test_ckpt, args.g_name)
         self.model = torch.nn.DataParallel(self.model, args.gpus).cuda()
@@ -117,7 +117,7 @@ class BaseTrainer(object):
             logger.info(f"init {args.g_name} success")
             
         if args.e_name is not None:
-            eval_model_module = __import__(f"models.{args.eval_model}", fromlist=["something"])
+            eval_model_module = __import__(f"gesture_models.{args.eval_model}", fromlist=["something"])
             self.eval_model = getattr(eval_model_module, args.e_name)(args)
             if self.rank == 0:
                 other_tools.load_checkpoints(self.eval_model, args.root_path+args.e_path, args.e_name)   
